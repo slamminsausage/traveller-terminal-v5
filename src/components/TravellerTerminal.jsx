@@ -4,43 +4,32 @@ import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { motion } from "framer-motion";
 
-const terminalStyle = {
-  fontFamily: "monospace",
-  color: "#33ff33",
-  backgroundColor: "black",
-  padding: "20px",
-  minHeight: "400px",
-  border: "2px solid #33ff33",
-  borderRadius: "5px",
-  boxShadow: "0 0 10px #33ff33"
-};
-
-// Tailwind-based styles for terminal input and buttons.
-const terminalInputStyle =
-  "bg-black text-green-400 border border-green-400 px-3 py-2 font-mono focus:outline-none";
-const terminalButtonStyle =
-  "bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500";
-
+// Terminal definitions including labpc81
 const terminals = {
   "lysani01": { requiresRoll: 8, logs: "/logs/lysani01.json" },
   "s.elara01": { requiresRoll: false, logs: "/logs/s.elara01.json" },
   "slocombe875": { requiresRoll: 8, logs: "/logs/slocombe875.json" },
   "waferterm01": { requiresRoll: false, logs: "/logs/waferterm01.json" },
-  // Added new terminal labpc81 with a 6+ roll requirement
   "labpc81": { requiresRoll: 6, logs: "/logs/labpc81.json" }
 };
 
-// Recursive typing function using setTimeout.
-const typeText = (text, setState, callback = null, index = 0) => {
+// Generic typing function with adjustable delay
+const typeText = (text, setState, callback = null, index = 0, delay = 30) => {
   if (index < text.length) {
     setState((prev) => prev + text[index]);
-    setTimeout(() => typeText(text, setState, callback, index + 1), 30);
+    setTimeout(() => typeText(text, setState, callback, index + 1, delay), delay);
   } else {
     if (callback) callback();
   }
 };
 
 export default function TravellerTerminal() {
+  // Initialization states
+  const [initText, setInitText] = useState("");
+  const [initComplete, setInitComplete] = useState(false);
+  const hasInitialized = useRef(false);
+
+  // Terminal and log states
   const [inputCode, setInputCode] = useState("");
   const [terminalData, setTerminalData] = useState("");
   const [logData, setLogData] = useState(null);
@@ -51,16 +40,39 @@ export default function TravellerTerminal() {
   const [displayedText, setDisplayedText] = useState("");
   const [logTypingComplete, setLogTypingComplete] = useState(false);
 
-  // Create a ref for the terminal content container
-  const terminalContentRef = useRef(null);
-
-  // Scroll the container to the bottom whenever displayedText updates.
+  // Initialization effect: ensure it runs only once
   useEffect(() => {
-    if (terminalContentRef.current) {
-      terminalContentRef.current.scrollTop = terminalContentRef.current.scrollHeight;
-    }
-  }, [displayedText]);
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
 
+    const loadingMessages = [
+      "Initializing system...",
+      "Connecting to network...",
+      "Loading secure protocols...",
+      "The Traveller Terminal is now online."
+    ];
+    let i = 0;
+    const displayNextMessage = () => {
+      if (i < loadingMessages.length) {
+        typeText(loadingMessages[i] + "\n", setInitText, () => {
+          // Add an extra newline for readability
+          setInitText((prev) => prev + "\n");
+          i++;
+          displayNextMessage();
+        }, 0, 50);
+      } else {
+        const welcomeMessage =
+          "\nWelcome to The Traveller Terminal.\n" +
+          "Type the name of a terminal to access its contents.\n\n";
+        typeText(welcomeMessage, setInitText, () => {
+          setInitComplete(true);
+        }, 0, 50);
+      }
+    };
+    displayNextMessage();
+  }, []);
+
+  // Access code handler for selecting a terminal
   const handleAccessCode = () => {
     const terminal = terminals[inputCode];
     if (terminal) {
@@ -76,6 +88,7 @@ export default function TravellerTerminal() {
     setInputCode("");
   };
 
+  // Roll check for the terminal itself
   const handleRollCheck = (passed) => {
     if (passed) {
       if (activeTerminal) {
@@ -89,17 +102,15 @@ export default function TravellerTerminal() {
     setRollCheck(null);
   };
 
-  // Updated special roll check handler to reveal the memo content after a successful roll
+  // Roll check for special logs (like the Internal Memo)
   const handleSpecialRollCheck = (passed) => {
     if (passed) {
       if (selectedLogData) {
         setDisplayedText("");
         setLogTypingComplete(false);
+        // For Internal Memo, display the actual content rather than the on_success message.
         if (selectedLogData.title === "Internal Memo - Urgent Subject Transfer") {
-          // Combine the on_success message and the actual content.
-          const combinedText =
-            selectedLogData.roll_check.on_success + "\n\n" + selectedLogData.content;
-          typeText(combinedText, setDisplayedText, () => {
+          typeText(selectedLogData.content, setDisplayedText, () => {
             setLogTypingComplete(true);
           });
         } else if (selectedLogData.roll_check && selectedLogData.roll_check.on_success) {
@@ -125,6 +136,7 @@ export default function TravellerTerminal() {
     setSpecialRollCheck(null);
   };
 
+  // Fetch logs from the provided path
   const fetchLogs = async (logPath) => {
     try {
       const response = await fetch(logPath);
@@ -144,13 +156,12 @@ export default function TravellerTerminal() {
     }
   };
 
+  // Handler for when a log is clicked
   const handleLogClick = (log) => {
-    // Modified condition: now "Internal Memo - Urgent Subject Transfer" also requires a special roll check.
-    if (log.title === "Erased Transmission" || log.title === "Internal Memo - Urgent Subject Transfer") {
-      setSelectedLogData(log);
-      setSpecialRollCheck({ difficulty: log.roll_check.difficulty });
+    setSelectedLogData(log);
+    if (log.requires_roll) {
+      setSpecialRollCheck({ difficulty: log.roll_check?.difficulty });
     } else {
-      setSelectedLogData(log);
       setDisplayedText("");
       setLogTypingComplete(false);
       typeText(log.content, setDisplayedText, () => {
@@ -160,12 +171,24 @@ export default function TravellerTerminal() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-black">
+    <div className="flex flex-col items-center h-screen bg-black">
+      {/* Initialization message area above the terminal */}
+      <div
+        style={{
+          fontFamily: "monospace",
+          color: "#33ff33",
+          whiteSpace: "pre-wrap",
+          marginBottom: "10px",
+          textAlign: "center"
+        }}
+      >
+        {initText}
+      </div>
+
       <Card className="w-[600px] border-green-400 border-2">
         <CardContent>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
-            {/* Attach the ref here */}
-            <div ref={terminalContentRef} style={terminalStyle} className="overflow-auto h-[300px] terminal">
+            <div className="terminal overflow-auto h-[300px]">
               {specialRollCheck ? (
                 <div>
                   <p>
@@ -173,10 +196,16 @@ export default function TravellerTerminal() {
                     {selectedLogData ? selectedLogData.title : "this file"}?
                   </p>
                   <div className="flex gap-2">
-                    <Button className={terminalButtonStyle} onClick={() => handleSpecialRollCheck(true)}>
+                    <Button
+                      className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500"
+                      onClick={() => handleSpecialRollCheck(true)}
+                    >
                       Yes
                     </Button>
-                    <Button className={terminalButtonStyle} onClick={() => handleSpecialRollCheck(false)}>
+                    <Button
+                      className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500"
+                      onClick={() => handleSpecialRollCheck(false)}
+                    >
                       No
                     </Button>
                   </div>
@@ -187,10 +216,16 @@ export default function TravellerTerminal() {
                     Did you pass the {rollCheck.difficulty}+ Electronics (Computers) check?
                   </p>
                   <div className="flex gap-2">
-                    <Button className={terminalButtonStyle} onClick={() => handleRollCheck(true)}>
+                    <Button
+                      className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500"
+                      onClick={() => handleRollCheck(true)}
+                    >
                       Yes
                     </Button>
-                    <Button className={terminalButtonStyle} onClick={() => handleRollCheck(false)}>
+                    <Button
+                      className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500"
+                      onClick={() => handleRollCheck(false)}
+                    >
                       No
                     </Button>
                   </div>
@@ -216,7 +251,7 @@ export default function TravellerTerminal() {
                   )}
                   {logTypingComplete && (
                     <Button
-                      className={terminalButtonStyle}
+                      className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500 mt-2"
                       onClick={() => {
                         setSelectedLogData(null);
                         setDisplayedText("");
@@ -240,18 +275,23 @@ export default function TravellerTerminal() {
                   ))}
                 </div>
               ) : (
-                <p className="glitch-text">{terminalData || "ENTER ACCESS CODE TO PROCEED"}</p>
+                <p className="glitch-text">
+                  {terminalData || "ENTER ACCESS CODE TO PROCEED"}
+                </p>
               )}
             </div>
           </motion.div>
           <div className="mt-4 flex gap-2">
             <Input
-              className={terminalInputStyle}
+              className="bg-black text-green-400 border border-green-400 px-3 py-2 font-mono focus:outline-none"
               placeholder="Enter Access Code..."
               value={inputCode}
               onChange={(e) => setInputCode(e.target.value)}
             />
-            <Button className={terminalButtonStyle} onClick={handleAccessCode}>
+            <Button
+              className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500"
+              onClick={handleAccessCode}
+            >
               Enter
             </Button>
           </div>
