@@ -108,20 +108,10 @@ export default function TravellerTerminal() {
       if (selectedLogData) {
         setDisplayedText("");
         setLogTypingComplete(false);
-        // For Internal Memo, display the actual content rather than the on_success message.
-        if (selectedLogData.title === "Internal Memo - Urgent Subject Transfer") {
-          typeText(selectedLogData.content, setDisplayedText, () => {
-            setLogTypingComplete(true);
-          });
-        } else if (selectedLogData.roll_check && selectedLogData.roll_check.on_success) {
-          typeText(selectedLogData.roll_check.on_success, setDisplayedText, () => {
-            setLogTypingComplete(true);
-          });
-        } else {
-          typeText(selectedLogData.content, setDisplayedText, () => {
-            setLogTypingComplete(true);
-          });
-        }
+        // For Internal Memo, display the actual content.
+        typeText(selectedLogData.content, setDisplayedText, () => {
+          setLogTypingComplete(true);
+        });
       } else {
         typeText("ERROR: Log not found.", setTerminalData);
       }
@@ -159,9 +149,11 @@ export default function TravellerTerminal() {
   // Handler for when a log is clicked
   const handleLogClick = (log) => {
     setSelectedLogData(log);
-    if (log.requires_roll) {
-      setSpecialRollCheck({ difficulty: log.roll_check?.difficulty });
+    // Only prompt for a roll check if this is the Internal Memo (requires a 10+ check)
+    if (log.requires_roll && log.roll_check && log.roll_check.difficulty === 10) {
+      setSpecialRollCheck({ difficulty: log.roll_check.difficulty });
     } else {
+      // For logs that require a 6+ check or no roll check, immediately display the content.
       setDisplayedText("");
       setLogTypingComplete(false);
       typeText(log.content, setDisplayedText, () => {
