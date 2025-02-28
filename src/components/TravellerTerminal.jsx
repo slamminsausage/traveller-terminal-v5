@@ -4,19 +4,20 @@ import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { motion } from "framer-motion";
 
-// Terminal definitions including labpc81
+// Terminal definitions including labpc81 and vanagandr001
 const terminals = {
   "lysani01": { requiresRoll: 8, logs: "/logs/lysani01.json" },
   "s.elara01": { requiresRoll: false, logs: "/logs/s.elara01.json" },
   "slocombe875": { requiresRoll: 8, logs: "/logs/slocombe875.json" },
   "waferterm01": { requiresRoll: false, logs: "/logs/waferterm01.json" },
-  "labpc81": { requiresRoll: 6, logs: "/logs/labpc81.json" }
+  "labpc81": { requiresRoll: 6, logs: "/logs/labpc81.json" },
+  "vanagandr001": { requiresRoll: false, logs: "/logs/vanagandr001.json" }
 };
 
 // Generic typing function with adjustable delay
 const typeText = (text, setState, callback = null, index = 0, delay = 30) => {
   if (index < text.length) {
-    setState((prev) => prev + text[index]);
+    setState(prev => prev + text[index]);
     setTimeout(() => typeText(text, setState, callback, index + 1, delay), delay);
   } else {
     if (callback) callback();
@@ -40,6 +41,18 @@ export default function TravellerTerminal() {
   const [displayedText, setDisplayedText] = useState("");
   const [logTypingComplete, setLogTypingComplete] = useState(false);
 
+  // Password-related states
+  const [requiresPassword, setRequiresPassword] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+  const [passwordAttempts, setPasswordAttempts] = useState(0);
+  const [isPasswordUnlocked, setIsPasswordUnlocked] = useState(false);
+
+  // State for grouping (for grouped logs like Encrypted Audio Logs)
+  const [expandedGroup, setExpandedGroup] = useState(null);
+  // State for displaying the separate audio logs page
+  const [showAudioLogsPage, setShowAudioLogsPage] = useState(false);
+  const [audioLogsData, setAudioLogsData] = useState([]);
+
   // Initialization effect: ensure it runs only once
   useEffect(() => {
     if (hasInitialized.current) return;
@@ -55,8 +68,7 @@ export default function TravellerTerminal() {
     const displayNextMessage = () => {
       if (i < loadingMessages.length) {
         typeText(loadingMessages[i] + "\n", setInitText, () => {
-          // Add an extra newline for readability
-          setInitText((prev) => prev + "\n");
+          setInitText(prev => prev + "\n");
           i++;
           displayNextMessage();
         }, 0, 50);
@@ -102,16 +114,27 @@ export default function TravellerTerminal() {
     setRollCheck(null);
   };
 
-  // Roll check for special logs (like the Internal Memo)
+  // Roll check for special logs (after password failures or for logs that require a roll)
   const handleSpecialRollCheck = (passed) => {
     if (passed) {
       if (selectedLogData) {
-        setDisplayedText("");
-        setLogTypingComplete(false);
-        // For Internal Memo, display the actual content.
-        typeText(selectedLogData.content, setDisplayedText, () => {
-          setLogTypingComplete(true);
-        });
+        // If this is a grouped log with sub-logs, open the audio logs page.
+        if (selectedLogData.logs) {
+          setAudioLogsData(selectedLogData.logs);
+          setShowAudioLogsPage(true);
+        } else {
+          setDisplayedText("");
+          setLogTypingComplete(false);
+          let message = "";
+          if (selectedLogData.roll_check && selectedLogData.roll_check.on_success) {
+            message = selectedLogData.content + "\n\n" + selectedLogData.roll_check.on_success;
+          } else {
+            message = selectedLogData.content;
+          }
+          typeText(message, setDisplayedText, () => {
+            setLogTypingComplete(true);
+          });
+        }
       } else {
         typeText("ERROR: Log not found.", setTerminalData);
       }
@@ -123,7 +146,11 @@ export default function TravellerTerminal() {
       }
       setSelectedLogData(null);
     }
+    // Reset password-related states
     setSpecialRollCheck(null);
+    setPasswordAttempts(0);
+    setIsPasswordUnlocked(false);
+    setPasswordInput("");
   };
 
   // Fetch logs from the provided path
@@ -149,22 +176,115 @@ export default function TravellerTerminal() {
   // Handler for when a log is clicked
   const handleLogClick = (log) => {
     setSelectedLogData(log);
-    // Only prompt for a roll check if this is the Internal Memo (requires a 10+ check)
-    if (log.requires_roll && log.roll_check && log.roll_check.difficulty === 10) {
-      setSpecialRollCheck({ difficulty: log.roll_check.difficulty });
+    // Reset grouping and password-related states
+    setExpandedGroup(null);
+    setPasswordAttempts(0);
+    setPasswordInput("");
+    setIsPasswordUnlocked(false);
+
+    // For grouped logs: if the log has a "logs" array, treat it as a group.
+    if (log.logs) {
+      // Instead of expanding inline, prompt for password.
+      if (log.requires_password) {
+        setRequiresPassword(true);
+      } else {
+        // If no password is required, directly open the audio logs page.
+        setAudioLogsData(log.logs);
+        setShowAudioLogsPage(true);
+      }
+    } else if (log.requires_password) {
+      setRequiresPassword(true);
     } else {
-      // For logs that require a 6+ check or no roll check, immediately display the content.
-      setDisplayedText("");
-      setLogTypingComplete(false);
-      typeText(log.content, setDisplayedText, () => {
-        setLogTypingComplete(true);
-      });
+      if (log.requires_roll && log.roll_check && log.roll_check.difficulty === 10) {
+        setSpecialRollCheck({ difficulty: log.roll_check.difficulty });
+      } else {
+        setDisplayedText("");
+        setLogTypingComplete(false);
+        typeText(log.content, setDisplayedText, () => {
+          setLogTypingComplete(true);
+        });
+      }
     }
   };
 
+  // Handler for submitting a password for a password-protected log
+  const handlePasswordSubmit = () => {
+    if (passwordInput === selectedLogData.password) {
+      // Correct password: unlock.
+      setIsPasswordUnlocked(true);
+      setRequiresPassword(false);
+      // If the log has sub-logs, open the audio logs page.
+      if (selectedLogData.logs) {
+        setAudioLogsData(selectedLogData.logs);
+        setShowAudioLogsPage(true);
+      } else {
+        setDisplayedText("");
+        setLogTypingComplete(false);
+        typeText(selectedLogData.content, setDisplayedText, () => {
+          setLogTypingComplete(true);
+        });
+      }
+    } else {
+      // Incorrect password: increment attempt count.
+      const attempts = passwordAttempts + 1;
+      setPasswordAttempts(attempts);
+      if (attempts >= (selectedLogData.attemptsAllowed || 3)) {
+        // After reaching allowed attempts, prompt for a 10+ roll check.
+        setRequiresPassword(false);
+        setSpecialRollCheck({ difficulty: selectedLogData.roll_check.difficulty });
+      } else {
+        typeText("Incorrect password. Please try again.", setTerminalData);
+      }
+    }
+  };
+
+  // If showAudioLogsPage is true, render the new page for grouped audio logs.
+  if (showAudioLogsPage) {
+    return (
+      <div className="flex flex-col items-center h-screen bg-black">
+        <h1 className="text-green-400 font-mono text-xl my-4">Encrypted Audio Logs</h1>
+        <div className="w-[600px] border-green-400 border-2 p-4 overflow-auto">
+          {audioLogsData.map((log, index) => (
+            <div key={index} style={{ marginBottom: "20px" }}>
+              <h2 className="text-green-400 font-mono">{log.title}</h2>
+              <p className="text-green-400 font-mono" style={{ whiteSpace: "pre-wrap" }}>{log.content}</p>
+              {log.audio_file && (
+                <audio
+                  controls
+                  style={{
+                    backgroundColor: "black",
+                    border: "1px solid #33ff33",
+                    borderRadius: "5px",
+                    width: "100%",
+                    marginTop: "10px",
+                    color: "#33ff33"
+                  }}
+                >
+                  <source src={log.audio_file} type="audio/mp3" />
+                  Your browser does not support the audio element.
+                </audio>
+              )}
+            </div>
+          ))}
+          <Button
+            className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500 mt-4"
+            onClick={() => {
+              setShowAudioLogsPage(false);
+              setAudioLogsData([]);
+              setSelectedLogData(null);
+            }}
+          >
+            Back
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Main terminal view
   return (
     <div className="flex flex-col items-center h-screen bg-black">
-      {/* Initialization message area above the terminal */}
+      {/* Initialization message area */}
       <div
         style={{
           fontFamily: "monospace",
@@ -176,7 +296,6 @@ export default function TravellerTerminal() {
       >
         {initText}
       </div>
-
       <Card className="w-[600px] border-green-400 border-2">
         <CardContent>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
@@ -222,6 +341,26 @@ export default function TravellerTerminal() {
                     </Button>
                   </div>
                 </div>
+              ) : selectedLogData && requiresPassword && !isPasswordUnlocked ? (
+                <div>
+                  <p>
+                    Password required for {selectedLogData.title}. Attempts remaining:{" "}
+                    {(selectedLogData.attemptsAllowed || 3) - passwordAttempts}
+                  </p>
+                  <Input
+                    className="bg-black text-green-400 border border-green-400 px-3 py-2 font-mono focus:outline-none"
+                    placeholder="Enter Password"
+                    value={passwordInput}
+                    onChange={(e) => setPasswordInput(e.target.value)}
+                    type="password"
+                  />
+                  <Button
+                    className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500 mt-2"
+                    onClick={handlePasswordSubmit}
+                  >
+                    Submit
+                  </Button>
+                </div>
               ) : selectedLogData ? (
                 <div>
                   <div style={{ whiteSpace: "pre-wrap" }}>{displayedText}</div>
@@ -256,15 +395,31 @@ export default function TravellerTerminal() {
                 </div>
               ) : logData ? (
                 <div>
-                  {logData.map((log, index) => (
-                    <p
-                      key={index}
-                      onClick={() => handleLogClick(log)}
-                      style={{ cursor: "pointer", textDecoration: "underline" }}
-                    >
-                      {log.title}
-                    </p>
-                  ))}
+                  {logData.map((log, index) => {
+                    // Check if the log is a grouped log (has a "logs" array)
+                    if (log.logs) {
+                      return (
+                        <div key={index}>
+                          <p
+                            onClick={() => handleLogClick(log)}
+                            style={{ cursor: "pointer", textDecoration: "underline" }}
+                          >
+                            {log.title}
+                          </p>
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <p
+                          key={index}
+                          onClick={() => handleLogClick(log)}
+                          style={{ cursor: "pointer", textDecoration: "underline" }}
+                        >
+                          {log.title}
+                        </p>
+                      );
+                    }
+                  })}
                 </div>
               ) : (
                 <p className="glitch-text">
