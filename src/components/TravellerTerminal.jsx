@@ -5,14 +5,25 @@ import { Button } from "../ui/Button";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
-// Terminal definitions including labpc81 and vanagandr001
+// Terminal definitions including all terminals
 const terminals = {
   "lysani01": { requiresRoll: 8, logs: "/logs/lysani01.json" },
   "s.elara01": { requiresRoll: false, logs: "/logs/s.elara01.json" },
   "slocombe875": { requiresRoll: 8, logs: "/logs/slocombe875.json" },
   "waferterm01": { requiresRoll: false, logs: "/logs/waferterm01.json" },
   "labpc81": { requiresRoll: 6, logs: "/logs/labpc81.json" },
-  "vanagandr001": { requiresRoll: 7, logs: "/logs/vanagandr001.json" }
+  "vanagandr001": { requiresRoll: 8, logs: "/logs/vanagandr001.json" },
+  // New terminals for Caldonis:
+  "blackcircuit01": { requiresRoll: 8, logs: "/logs/blackcircuit01.json" },
+  "fuw01": { requiresRoll: 8, logs: "/logs/fuw01.json" },
+  "azura01": { requiresRoll: 10, logs: "/logs/azura01.json" },
+  "vennik01": { 
+    requiresRoll: 12, 
+    logs: "/logs/vennik01.json",
+    requiresPassword: true,
+    password: "vennik4ever"
+  },
+  "caldonis_public": { requiresRoll: false, logs: "/logs/caldonis_public.json" }
 };
 
 const typeText = (text, setState, callback = null, index = 0, delay = 30) => {
@@ -29,7 +40,8 @@ export default function TravellerTerminal() {
   const [initText, setInitText] = useState("");
   const [initComplete, setInitComplete] = useState(false);
   const hasInitialized = useRef(false);
-
+  const typingRef = useRef(null);
+  
   const [inputCode, setInputCode] = useState("");
   const [terminalData, setTerminalData] = useState("");
   const [logData, setLogData] = useState(null);
@@ -39,18 +51,74 @@ export default function TravellerTerminal() {
   const [selectedLogData, setSelectedLogData] = useState(null);
   const [displayedText, setDisplayedText] = useState("");
   const [logTypingComplete, setLogTypingComplete] = useState(false);
+  const [currentView, setCurrentView] = useState("init"); // "init", "terminal", "log"
 
   // Password-related states
   const [requiresPassword, setRequiresPassword] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [passwordAttempts, setPasswordAttempts] = useState(0);
   const [isPasswordUnlocked, setIsPasswordUnlocked] = useState(false);
+  const [terminalPasswordInput, setTerminalPasswordInput] = useState("");
+  const [terminalPasswordRequired, setTerminalPasswordRequired] = useState(false);
+  const [terminalPasswordAttempts, setTerminalPasswordAttempts] = useState(0);
 
   // Grouping state for grouped logs
   const [expandedGroup, setExpandedGroup] = useState(null);
   // State for displaying a separate page for grouped audio logs
   const [showAudioLogsPage, setShowAudioLogsPage] = useState(false);
   const [audioLogsData, setAudioLogsData] = useState([]);
+
+  // Function to handle keyboard events
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        // Stop the typing animation and show full text
+        if (currentView === "log" && !logTypingComplete) {
+          setLogTypingComplete(true);
+          // Clear the typing timeout
+          if (typingRef.current) {
+            clearTimeout(typingRef.current);
+          }
+          // If this is a log with content, show it all
+          if (selectedLogData) {
+            let fullText = "";
+            if (selectedLogData.roll_check && selectedLogData.roll_check.on_success) {
+              fullText = selectedLogData.roll_check.on_success + "\n\n";
+            }
+            fullText += `Date: ${selectedLogData.date}\nAuthor: ${selectedLogData.author}\n\n${selectedLogData.content}`;
+            setDisplayedText(fullText);
+          }
+        }
+        // Navigate back based on current view
+        else if (currentView === "log") {
+          handleBackToTerminal();
+        } 
+        else if (currentView === "terminal") {
+          handleBackToInit();
+        }
+      }
+      else if (e.key === "Enter") {
+        // Handle terminal password submission
+        if (terminalPasswordRequired) {
+          handleTerminalPasswordSubmit();
+        }
+        // Handle individual log password submission
+        else if (requiresPassword && !isPasswordUnlocked) {
+          handlePasswordSubmit();
+        }
+        // Handle main terminal code input
+        else if (currentView === "init" && inputCode.trim() !== "") {
+          handleAccessCode();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [currentView, logTypingComplete, selectedLogData, terminalPasswordRequired, 
+      terminalPasswordInput, requiresPassword, isPasswordUnlocked, inputCode]);
 
   useEffect(() => {
     if (hasInitialized.current) return;
@@ -72,7 +140,8 @@ export default function TravellerTerminal() {
       } else {
         const welcomeMessage =
           "\nWelcome to The Traveller Terminal.\n" +
-          "Type the name of a terminal to access its contents.\n\n";
+          "Type the name of a terminal to access its contents.\n" +
+          "Press ESC at any time to go back.\n\n";
         typeText(welcomeMessage, setInitText, () => {
           setInitComplete(true);
         }, 0, 50);
@@ -87,10 +156,17 @@ export default function TravellerTerminal() {
       navigate("/poop");
       return;
     }
+    
     const terminal = terminals[inputCode];
     if (terminal) {
       setActiveTerminal(terminal);
-      if (terminal.requiresRoll) {
+      setCurrentView("terminal");
+      
+      // Check if the terminal requires a password
+      if (terminal.requiresPassword && !isPasswordUnlocked) {
+        setTerminalPasswordRequired(true);
+      } 
+      else if (terminal.requiresRoll) {
         setRollCheck({ difficulty: terminal.requiresRoll, success: null });
       } else {
         fetchLogs(terminal.logs);
@@ -99,6 +175,34 @@ export default function TravellerTerminal() {
       typeText("ACCESS DENIED. INVALID CODE.", setTerminalData);
     }
     setInputCode("");
+  };
+
+  const handleTerminalPasswordSubmit = () => {
+    if (activeTerminal && terminalPasswordInput === activeTerminal.password) {
+      setTerminalPasswordRequired(false);
+      setIsPasswordUnlocked(true);
+      
+      // If password is correct, bypass the roll check entirely and fetch logs directly
+      fetchLogs(activeTerminal.logs);
+    } else {
+      const attempts = terminalPasswordAttempts + 1;
+      setTerminalPasswordAttempts(attempts);
+      setTerminalPasswordInput("");
+      
+      if (attempts >= 3) { // After 3 failed attempts
+        setTerminalPasswordRequired(false);
+        
+        if (activeTerminal && activeTerminal.requiresRoll) {
+          setRollCheck({ difficulty: activeTerminal.requiresRoll, success: null });
+          typeText("Maximum password attempts reached. Attempting alternate access method...", setTerminalData);
+        } else {
+          typeText("ACCESS DENIED. MAXIMUM ATTEMPTS REACHED.", setTerminalData);
+          handleBackToInit();
+        }
+      } else {
+        typeText(`ACCESS DENIED. INVALID PASSWORD. ${3 - attempts} attempts remaining.`, setTerminalData);
+      }
+    }
   };
 
   const handleRollCheck = (passed) => {
@@ -123,13 +227,31 @@ export default function TravellerTerminal() {
         } else {
           setDisplayedText("");
           setLogTypingComplete(false);
+          setCurrentView("log");
+          
           let message = "";
           if (selectedLogData.roll_check && selectedLogData.roll_check.on_success) {
-            message = selectedLogData.content + "\n\n" + selectedLogData.roll_check.on_success;
+            message = selectedLogData.roll_check.on_success + "\n\n";
+            message += `Date: ${selectedLogData.date}\nAuthor: ${selectedLogData.author}\n\n${selectedLogData.content}`;
           } else {
-            message = selectedLogData.content;
+            message = `Date: ${selectedLogData.date}\nAuthor: ${selectedLogData.author}\n\n${selectedLogData.content}`;
           }
-          typeText(message, setDisplayedText, () => {
+          
+          // Store the typing function reference so we can cancel it with ESC key
+          const typeWithRef = (text, setState, callback = null, index = 0, delay = 30) => {
+            if (index < text.length) {
+              setState(prev => prev + text[index]);
+              typingRef.current = setTimeout(
+                () => typeWithRef(text, setState, callback, index + 1, delay), 
+                delay
+              );
+            } else {
+              typingRef.current = null;
+              if (callback) callback();
+            }
+          };
+          
+          typeWithRef(message, setDisplayedText, () => {
             setLogTypingComplete(true);
           });
         }
@@ -158,9 +280,27 @@ export default function TravellerTerminal() {
         setLogData(data);
       } else {
         setSelectedLogData(data);
+        setCurrentView("log");
         setDisplayedText("");
         setLogTypingComplete(false);
-        typeText(data.content || "No data available.", setDisplayedText, () => {
+        
+        const message = `Date: ${data.date}\nAuthor: ${data.author}\n\n${data.content || "No data available."}`;
+        
+        // Store the typing function reference so we can cancel it with ESC key
+        const typeWithRef = (text, setState, callback = null, index = 0, delay = 30) => {
+          if (index < text.length) {
+            setState(prev => prev + text[index]);
+            typingRef.current = setTimeout(
+              () => typeWithRef(text, setState, callback, index + 1, delay), 
+              delay
+            );
+          } else {
+            typingRef.current = null;
+            if (callback) callback();
+          }
+        };
+        
+        typeWithRef(message, setDisplayedText, () => {
           setLogTypingComplete(true);
         });
       }
@@ -171,10 +311,12 @@ export default function TravellerTerminal() {
 
   const handleLogClick = (log) => {
     setSelectedLogData(log);
+    setCurrentView("log");
     setExpandedGroup(null);
     setPasswordAttempts(0);
     setPasswordInput("");
     setIsPasswordUnlocked(false);
+    
     if (log.logs) {
       if (log.requires_password) {
         setRequiresPassword(true);
@@ -185,12 +327,29 @@ export default function TravellerTerminal() {
     } else if (log.requires_password) {
       setRequiresPassword(true);
     } else {
-      if (log.requires_roll && log.roll_check && log.roll_check.difficulty === 10) {
+      if (log.requires_roll && log.roll_check && log.roll_check.difficulty >= 10) {
         setSpecialRollCheck({ difficulty: log.roll_check.difficulty });
       } else {
         setDisplayedText("");
         setLogTypingComplete(false);
-        typeText(log.content, setDisplayedText, () => {
+        
+        const message = `Date: ${log.date}\nAuthor: ${log.author}\n\n${log.content}`;
+        
+        // Store the typing function reference so we can cancel it with ESC key
+        const typeWithRef = (text, setState, callback = null, index = 0, delay = 30) => {
+          if (index < text.length) {
+            setState(prev => prev + text[index]);
+            typingRef.current = setTimeout(
+              () => typeWithRef(text, setState, callback, index + 1, delay), 
+              delay
+            );
+          } else {
+            typingRef.current = null;
+            if (callback) callback();
+          }
+        };
+        
+        typeWithRef(message, setDisplayedText, () => {
           setLogTypingComplete(true);
         });
       }
@@ -207,7 +366,10 @@ export default function TravellerTerminal() {
       } else {
         setDisplayedText("");
         setLogTypingComplete(false);
-        typeText(selectedLogData.content, setDisplayedText, () => {
+        
+        const message = `Date: ${selectedLogData.date}\nAuthor: ${selectedLogData.author}\n\n${selectedLogData.content}`;
+        
+        typeText(message, setDisplayedText, () => {
           setLogTypingComplete(true);
         });
       }
@@ -221,6 +383,29 @@ export default function TravellerTerminal() {
         typeText("Incorrect password. Please try again.", setTerminalData);
       }
     }
+  };
+
+  const handleBackToTerminal = () => {
+    setSelectedLogData(null);
+    setDisplayedText("");
+    setLogTypingComplete(false);
+    setCurrentView("terminal");
+    // Cancel any ongoing typing
+    if (typingRef.current) {
+      clearTimeout(typingRef.current);
+      typingRef.current = null;
+    }
+  };
+
+  const handleBackToInit = () => {
+    setLogData(null);
+    setActiveTerminal(null);
+    setTerminalData("");
+    setCurrentView("init");
+    setTerminalPasswordRequired(false);
+    setTerminalPasswordInput("");
+    setTerminalPasswordAttempts(0);
+    setIsPasswordUnlocked(false);
   };
 
   if (showAudioLogsPage) {
@@ -256,6 +441,7 @@ export default function TravellerTerminal() {
               setShowAudioLogsPage(false);
               setAudioLogsData([]);
               setSelectedLogData(null);
+              setCurrentView("terminal");
             }}
           >
             Back
@@ -267,22 +453,61 @@ export default function TravellerTerminal() {
 
   return (
     <div className="flex flex-col items-center h-screen bg-black">
-      <div
-        style={{
-          fontFamily: "monospace",
-          color: "#33ff33",
-          whiteSpace: "pre-wrap",
-          marginBottom: "10px",
-          textAlign: "center"
-        }}
-      >
-        {initText}
-      </div>
+      {currentView === "init" && (
+        <div
+          style={{
+            fontFamily: "monospace",
+            color: "#33ff33",
+            whiteSpace: "pre-wrap",
+            marginBottom: "10px",
+            textAlign: "center"
+          }}
+        >
+          {initText}
+        </div>
+      )}
       <Card className="w-full max-w-md border-green-400 border-2">
         <CardContent>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
             <div className="terminal overflow-auto h-[300px]">
-              {specialRollCheck ? (
+              {terminalPasswordRequired ? (
+                <div>
+                  <p>
+                    Terminal requires password authentication.
+                  </p>
+                  <p>
+                    Attempts remaining: {3 - terminalPasswordAttempts}
+                  </p>
+                  <div className="mt-4">
+                    <Input
+                      className="bg-black text-green-400 border border-green-400 px-3 py-2 font-mono focus:outline-none"
+                      placeholder="Enter Password"
+                      value={terminalPasswordInput}
+                      onChange={(e) => setTerminalPasswordInput(e.target.value)}
+                      type="password"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleTerminalPasswordSubmit();
+                        }
+                      }}
+                    />
+                    <div className="flex gap-2 mt-2">
+                      <Button
+                        className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500"
+                        onClick={handleTerminalPasswordSubmit}
+                      >
+                        Submit
+                      </Button>
+                      <Button
+                        className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500"
+                        onClick={handleBackToInit}
+                      >
+                        Back
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ) : specialRollCheck ? (
                 <div>
                   <p>
                     Did you pass the {specialRollCheck.difficulty}+ check for{" "}
@@ -335,13 +560,26 @@ export default function TravellerTerminal() {
                     value={passwordInput}
                     onChange={(e) => setPasswordInput(e.target.value)}
                     type="password"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handlePasswordSubmit();
+                      }
+                    }}
                   />
-                  <Button
-                    className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500 mt-2"
-                    onClick={handlePasswordSubmit}
-                  >
-                    Submit
-                  </Button>
+                  <div className="flex gap-2 mt-2">
+                    <Button
+                      className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500"
+                      onClick={handlePasswordSubmit}
+                    >
+                      Submit
+                    </Button>
+                    <Button
+                      className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500"
+                      onClick={handleBackToTerminal}
+                    >
+                      Back
+                    </Button>
+                  </div>
                 </div>
               ) : selectedLogData ? (
                 <div>
@@ -365,11 +603,7 @@ export default function TravellerTerminal() {
                   {logTypingComplete && (
                     <Button
                       className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500 mt-2"
-                      onClick={() => {
-                        setSelectedLogData(null);
-                        setDisplayedText("");
-                        setLogTypingComplete(false);
-                      }}
+                      onClick={handleBackToTerminal}
                     >
                       Back
                     </Button>
@@ -401,6 +635,12 @@ export default function TravellerTerminal() {
                       );
                     }
                   })}
+                  <Button
+                    className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500 mt-2"
+                    onClick={handleBackToInit}
+                  >
+                    Back
+                  </Button>
                 </div>
               ) : (
                 <p className="glitch-text">
@@ -415,6 +655,11 @@ export default function TravellerTerminal() {
               placeholder="Enter Access Code..."
               value={inputCode}
               onChange={(e) => setInputCode(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleAccessCode();
+                }
+              }}
             />
             <Button
               className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500"
