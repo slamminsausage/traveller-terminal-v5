@@ -49,7 +49,7 @@
     "location": "Caldonis Public Terminal - Restricted Data",
     "date": "081-1105",
     "author": "REDACTED",
-    "content": "Primary target's vessel expected to appear at upcoming auction. Sources confirm members of the crew have survived - contrary to initial reports. Some still display physiological changes. Psychological warfare tactics proving effective in creating anxiety among targets. They feel hunted.\n\nTell our client that contingency plans are in place regardless of auction outcome. My modifications allow for multiple approaches, but I prefer a more... personal touch. They deserve to see who's coming for them before the end.\n\nInitial surveillance established in Eternium Starport, The Black Circuit, and likely approach routes to the Warehouse Complex. I've left breadcrumbs that only they would recognize.\n\nNo one escapes what they did to me. No one.",
+    "content": "Primary target's vessel expected to appear at upcoming auction. Sources confirm members of the crew have survived - contrary to initial reports. \n\nTell our client that contingency plans are in place regardless of auction outcome. My modifications allow for multiple approaches, but I prefer a more... personal touch. They deserve to see who's coming for them before the end.\n\nInitial surveillance established in Eternium Starport, The Black Circuit, and likely approach routes to the Warehouse Complex. I've left breadcrumbs that only they would recognize.\n\nNo one escapes what they did to me. No one.",
     "security_level": "high",
     "requires_roll": true,
     "roll_check": {
@@ -64,7 +64,7 @@
     "location": "Caldonis Public Terminal - Encrypted Channel",
     "date": "081-1105",
     "author": "ENCRYPTED",
-    "content": "STRIKE CORE DIRECTIVE - EYES ONLY\n\nCell leaders to convene tomorrow at 02:00, Spineworks lower level. Bring your tactical assessments for Vennik's upcoming auction. Intelligence suggests multiple high-value items will be presented beyond the starship previously discussed.\n\nJarvek has secured warehouse blueprints through our contact in Vennik's maintenance division. Entry points identified, but security measures recently enhanced. Our operative reports increased guard rotations and new electronic countermeasures.\n\nMira believes this auction represents our best opportunity to strike at both Vennik and Lysani simultaneously. The offworld crew seeking their vessel could provide unexpected leverage - their goals align temporarily with ours.\n\nCONTINGENCY PLANS: If primary infiltration fails, secondary disruption operations are authorized at Vennik's Vice Sector establishments. The scale will break.\n\nDESTROY AFTER READING.",
+    "content": "STRIKE CORE DIRECTIVE - EYES ONLY\n\nCell leaders to convene tomorrow at 02:00, Neon Row at the The Scale Room. Bring your tactical assessments for Vennik's upcoming auction. Intelligence suggests multiple high-value items will be presented.\n\nJarvek has secured warehouse blueprints through our contact in Vennik's maintenance division. Entry points identified, but security measures recently enhanced. Our operative reports increased guard rotations and new electronic countermeasures.\n\nMira believes this auction represents our best opportunity to strike at both Vennik and Lysani simultaneously.\n\nCONTINGENCY PLANS: If primary infiltration fails, secondary disruption operations are authorized at Vennik's Vice Sector establishments. The scale will break.\n\nDESTROY AFTER READING.",
     "security_level": "high",
     "requires_roll": true,
     "roll_check": {

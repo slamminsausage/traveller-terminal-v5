@@ -28,7 +28,7 @@
     "location": "Black Circuit Terminal",
     "date": "077-1105",
     "author": "Vaelus Korr",
-    "content": "NOTICE TO ALL PREMIUM CLIENTS:\n\nRax Vennik's Syndicate will be hosting a specialized auction in 5 days at the Warehouse Complex. Items include recovered starships, experimental tech, and other high-value acquisitions. The centerpiece is a modified Type-S Scout/Courier with unspecified modifications of interest to several research corporations.\n\nKnown interested parties include representatives from House Azura, Lysani Labs, and possibly Black Talon operatives.\n\nBidding credentials available through usual channels. 25,000 credit minimum verification required.",
+    "content": "NOTICE TO ALL PREMIUM CLIENTS:\n\nRax Vennik's Syndicate will be hosting a specialized auction in 12 days at the Warehouse Complex. Items include recovered starships, experimental tech, and other high-value acquisitions. The centerpiece is a modified Type-S Scout/Courier with unspecified modifications of interest to several research corporations.\n\nKnown interested parties include representatives from House Azura, Lysani Labs, and possibly Black Talon operatives.\n\nBidding credentials available through usual channels. 25,000 credit minimum verification required.",
     "security_level": "medium",
     "requires_roll": true,
     "roll_check": {
@@ -43,7 +43,7 @@
     "location": "Black Circuit Terminal",
     "date": "079-1105",
     "author": "Unknown",
-    "content": "Encrypted communications between suspected FUW cells indicate planned disruption of shipments to Lysani Laboratories within the next week. Specific targets unknown, but chatter mentions the 'Vanagandr acquisition' as a secondary objective. Strike Core elements appear to be mobilizing in Old Caldonis near The Spineworks.\n\nUnknown FUW operative designated 'Torren' mentioned repeatedly. Possible high-value target.\n\nThis information is available for 5,000 credits to interested parties.",
+    "content": "Encrypted communications between suspected FUW cells indicate planned disruption of shipments to Lysani Laboratories within the next week. Specific targets unknown, but chatter mentions the 'Vennik Auction' as a secondary objective. Strike Core elements appear to be mobilizing in Old Caldonis.\n\nUnknown FUW operative designated 'Torren' mentioned repeatedly. Possible high-value target.\n\nThis information is available for 15,000 credits to interested parties.",
     "security_level": "high",
     "requires_roll": true,
     "roll_check": {
@@ -58,7 +58,7 @@
     "location": "Black Circuit Terminal",
     "date": "080-1105",
     "author": "Kira Veld",
-    "content": "PREMIUM INTELLIGENCE BRIEF - NOT FOR CIRCULATION\n\nTension within Vennik's inner circle has escalated. Gareth Vane (Finance) is suspected of skimming from auction proceeds, while Rax's enforcer Sayelle has reportedly threatened Vane directly.\n\nSayelle's recent obsession with hunting an unidentified crew has diverted her attention, providing Vane opportunity to consolidate power with mid-level enforcers.\n\nRECOMMENDATION: Approach either faction with extreme caution. Leverage available if needed, but substantial risk exists regardless of alignment choice.\n\nFull dossiers available for 12,000 credits each.",
+    "content": "PREMIUM INTELLIGENCE BRIEF - NOT FOR CIRCULATION\n\nTension within Vennik's inner circle has escalated. Gareth Vane (Finance) is suspected of skimming from auction proceeds, while Rax's enforcer Sayelle has reportedly threatened Vane directly.\n\nRECOMMENDATION: Approach either faction with extreme caution. Leverage available if needed, but substantial risk exists regardless of alignment choice.\n\nFull dossiers available for 12,000 credits each.",
     "security_level": "high",
     "requires_roll": true,
     "roll_check": {
