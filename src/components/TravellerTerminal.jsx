@@ -5,6 +5,138 @@ import { Button } from "../ui/Button";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
+// Character set for corruption effects
+const corruptionCharacters = "!@#$%^&*()_+-=[]{}|;:,./<>?`~¡™£¢∞§¶•ªº–≠";
+
+/**
+ * Corrupts a portion of the text for an immersive glitched terminal effect
+ * @param {string} text - The text to corrupt
+ * @param {number} corruptionLevel - Between 0 and 1, how severe the corruption should be
+ * @param {boolean} isEclipseShard - Whether this is Eclipse Shard content (special effects)
+ * @returns {string} - The corrupted text
+ */
+const applyTextCorruption = (text, corruptionLevel = 0.02, isEclipseShard = false) => {
+  if (!text) return "";
+  
+  // Split text into lines to preserve formatting
+  const lines = text.split('\n');
+  
+  // Process each line
+  const corruptedLines = lines.map(line => {
+    // Skip empty lines
+    if (line.trim() === '') return line;
+    
+    let corruptedLine = '';
+    
+    // Process each character
+    for (let i = 0; i < line.length; i++) {
+      // Eclipse Shard content gets special treatment
+      if (isEclipseShard && 
+         (line.includes("SHARD") || line.includes("Eclipse") || line.includes("Trevar")) && 
+         Math.random() < 0.2) {
+        // Create clusters of corruption around mentions of the Shard
+        if (line.substring(i, i+5) === "SHARD" || 
+            (i >= 5 && line.substring(i-5, i) === "SHARD") ||
+            line.substring(i, i+7) === "Eclipse" || 
+            (i >= 7 && line.substring(i-7, i) === "Eclipse") ||
+            line.substring(i, i+6) === "Trevar" || 
+            (i >= 6 && line.substring(i-6, i) === "Trevar")) {
+          // Higher corruption near keyword mentions
+          if (Math.random() < 0.4) {
+            corruptedLine += corruptionCharacters.charAt(
+              Math.floor(Math.random() * corruptionCharacters.length)
+            );
+            continue;
+          }
+        }
+      }
+      
+      // Regular corruption chance based on corruptionLevel
+      if (Math.random() < corruptionLevel) {
+        // Replace with a random corruption character
+        corruptedLine += corruptionCharacters.charAt(
+          Math.floor(Math.random() * corruptionCharacters.length)
+        );
+      } else {
+        // Keep original character
+        corruptedLine += line[i];
+      }
+    }
+    
+    return corruptedLine;
+  });
+  
+  return corruptedLines.join('\n');
+};
+
+// Get terminal effect classes based on terminal type
+const getTerminalEffectClasses = (terminalId) => {
+  if (!terminalId) return "terminal terminal-flicker";
+  
+  // Extract the terminal ID from the logs path if needed
+  const terminalName = terminalId.includes("/") 
+    ? terminalId.replace("/logs/", "").replace(".json", "")
+    : terminalId;
+  
+  // Define terminals that should have more severe effects
+  const damagedTerminals = ["blacksite-es1", "sayelle-logs", "vennik-personal"];
+  const minorGlitchTerminals = ["fuwnet", "vanagandr001", "fuw01", "blacktalon"];
+  
+  if (damagedTerminals.includes(terminalName)) {
+    return "terminal terminal-severe-flicker terminal-scanlines";
+  } else if (minorGlitchTerminals.includes(terminalName)) {
+    return "terminal terminal-flicker terminal-scanlines";
+  } else {
+    // Default terminals have subtle effects
+    return "terminal terminal-flicker";
+  }
+};
+
+// Function to check if content should be corrupted
+const shouldCorruptContent = (content, terminalId) => {
+  if (!content || !terminalId) return false;
+  
+  const terminalName = terminalId.includes("/") 
+    ? terminalId.replace("/logs/", "").replace(".json", "")
+    : terminalId;
+  
+  // Define which terminals should have corrupted text
+  const corruptTerminals = ["blacksite-es1", "vennik-personal", "sayelle-logs", "blacktalon"];
+  
+  return corruptTerminals.includes(terminalName) || 
+         content.includes("Eclipse Shard") || 
+         content.includes("ES1") ||
+         content.includes("Trevar");
+};
+
+// Get corruption level and type for specific terminal content
+const getCorruptionParams = (content, terminalId) => {
+  if (!content || !terminalId) return { level: 0, isEclipseShard: false };
+  
+  const terminalName = terminalId.includes("/") 
+    ? terminalId.replace("/logs/", "").replace(".json", "")
+    : terminalId;
+  
+  // Check for Eclipse Shard content
+  const isEclipseContent = content.includes("Eclipse Shard") || 
+                         content.includes("ES1") ||
+                         terminalName === "blacksite-es1";
+                         
+  // Check for other special terminals
+  const isSayelleLog = terminalName.includes("sayelle");
+  const isBlacksiteLog = terminalName.includes("blacksite");
+  
+  if (isEclipseContent) {
+    return { level: 0.03, isEclipseShard: true };
+  } else if (isBlacksiteLog) {
+    return { level: 0.02, isEclipseShard: false };
+  } else if (isSayelleLog) {
+    return { level: 0.015, isEclipseShard: false };
+  } else {
+    return { level: 0.01, isEclipseShard: false };
+  }
+};
+
 // Terminal definitions including all terminals
 const terminals = {
   "lysani01": { requiresRoll: 8, logs: "/logs/lysani01.json" },
@@ -23,7 +155,13 @@ const terminals = {
     requiresPassword: true,
     password: "vennik4ever"
   },
-  "caldonis_public": { requiresRoll: false, logs: "/logs/caldonis_public.json" }
+  "caldonis_public": { requiresRoll: false, logs: "/logs/caldonis_public.json" }, // Added comma here
+  // Add these new secret terminals with correct syntax
+  "blacksite-es1": { requiresRoll: 10, logs: "/logs/blacksite-es1.json" },
+  "blacktalon": { requiresRoll: 12, logs: "/logs/blacktalon.json" },
+  "vennik-personal": { requiresRoll: 10, logs: "/logs/vennik-personal.json" },
+  "sayelle-logs": { requiresRoll: 8, logs: "/logs/sayelle-logs.json" },
+  "fuwnet": { requiresRoll: 8, logs: "/logs/fuw-network.json" }
 };
 
 const typeText = (text, setState, callback = null, index = 0, delay = 30) => {
@@ -67,6 +205,57 @@ export default function TravellerTerminal() {
   // State for displaying a separate page for grouped audio logs
   const [showAudioLogsPage, setShowAudioLogsPage] = useState(false);
   const [audioLogsData, setAudioLogsData] = useState([]);
+  
+  // New states for screen flicker effects
+  const [severeMalfunction, setSevereMalfunction] = useState(false);
+  const [glitchText, setGlitchText] = useState("");
+  const terminalRef = useRef(null);
+
+  // Random severe glitch effect
+  useEffect(() => {
+    if (!activeTerminal || !selectedLogData) return;
+    
+    // Only enable for certain terminal types
+    const terminalName = activeTerminal.logs.replace("/logs/", "").replace(".json", "");
+    const glitchEnabledTerminals = ["blacksite-es1", "vennik-personal", "fuwnet", "sayelle-logs", "blacktalon"];
+    
+    if (glitchEnabledTerminals.includes(terminalName)) {
+      // Random chance to trigger a glitch
+      const randomGlitch = () => {
+        // 5% chance of a glitch
+        if (Math.random() < 0.05) {
+          // Trigger a glitch effect
+          setSevereMalfunction(true);
+          
+          // Generate glitch text
+          const glitchMessages = [
+            "WARNING: SIGNAL INTEGRITY FAILING",
+            "CRC ERROR DETECTED IN DATA STREAM",
+            "QUANTUM FLUCTUATION DETECTED",
+            "TEMPORAL ANOMALY IN DATA BUFFER",
+            "WARNING: REALITY ANCHOR DESTABILIZING",
+            "SECURITY BREACH ATTEMPT DETECTED"
+          ];
+          
+          // Pick a random message
+          setGlitchText(glitchMessages[Math.floor(Math.random() * glitchMessages.length)]);
+          
+          // Clear the glitch after a short time
+          setTimeout(() => {
+            setSevereMalfunction(false);
+            setGlitchText("");
+          }, 1500);
+        }
+      };
+      
+      // Set up interval for random glitches
+      const glitchInterval = setInterval(randomGlitch, 10000); // Check every 10 seconds
+      
+      return () => {
+        clearInterval(glitchInterval);
+      };
+    }
+  }, [selectedLogData, activeTerminal]);
 
   // Function to handle keyboard events
   useEffect(() => {
@@ -86,6 +275,13 @@ export default function TravellerTerminal() {
               fullText = selectedLogData.roll_check.on_success + "\n\n";
             }
             fullText += `Date: ${selectedLogData.date}\nAuthor: ${selectedLogData.author}\n\n${selectedLogData.content}`;
+            
+            // Apply corruption if needed
+            if (activeTerminal && shouldCorruptContent(fullText, activeTerminal.logs)) {
+              const { level, isEclipseShard } = getCorruptionParams(fullText, activeTerminal.logs);
+              fullText = applyTextCorruption(fullText, level, isEclipseShard);
+            }
+            
             setDisplayedText(fullText);
           }
         }
@@ -118,7 +314,14 @@ export default function TravellerTerminal() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [currentView, logTypingComplete, selectedLogData, terminalPasswordRequired, 
-      terminalPasswordInput, requiresPassword, isPasswordUnlocked, inputCode]);
+      terminalPasswordInput, requiresPassword, isPasswordUnlocked, inputCode, activeTerminal]);
+  
+  // Auto scroll terminal to keep content in view
+  useEffect(() => {
+    if (terminalRef.current) {
+      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+    }
+  }, [displayedText, terminalData, logTypingComplete, currentView]);
 
   useEffect(() => {
     if (hasInitialized.current) return;
@@ -237,6 +440,12 @@ export default function TravellerTerminal() {
             message = `Date: ${selectedLogData.date}\nAuthor: ${selectedLogData.author}\n\n${selectedLogData.content}`;
           }
           
+          // Apply corruption if appropriate for this content
+          if (activeTerminal && shouldCorruptContent(message, activeTerminal.logs)) {
+            const { level, isEclipseShard } = getCorruptionParams(message, activeTerminal.logs);
+            message = applyTextCorruption(message, level, isEclipseShard);
+          }
+          
           // Store the typing function reference so we can cancel it with ESC key
           const typeWithRef = (text, setState, callback = null, index = 0, delay = 30) => {
             if (index < text.length) {
@@ -284,7 +493,13 @@ export default function TravellerTerminal() {
         setDisplayedText("");
         setLogTypingComplete(false);
         
-        const message = `Date: ${data.date}\nAuthor: ${data.author}\n\n${data.content || "No data available."}`;
+        let message = `Date: ${data.date}\nAuthor: ${data.author}\n\n${data.content || "No data available."}`;
+        
+        // Apply corruption if appropriate for this content
+        if (activeTerminal && shouldCorruptContent(message, activeTerminal.logs)) {
+          const { level, isEclipseShard } = getCorruptionParams(message, activeTerminal.logs);
+          message = applyTextCorruption(message, level, isEclipseShard);
+        }
         
         // Store the typing function reference so we can cancel it with ESC key
         const typeWithRef = (text, setState, callback = null, index = 0, delay = 30) => {
@@ -333,7 +548,13 @@ export default function TravellerTerminal() {
         setDisplayedText("");
         setLogTypingComplete(false);
         
-        const message = `Date: ${log.date}\nAuthor: ${log.author}\n\n${log.content}`;
+        let message = `Date: ${log.date}\nAuthor: ${log.author}\n\n${log.content}`;
+        
+// Apply corruption if appropriate for this content
+        if (activeTerminal && shouldCorruptContent(message, activeTerminal.logs)) {
+          const { level, isEclipseShard } = getCorruptionParams(message, activeTerminal.logs);
+          message = applyTextCorruption(message, level, isEclipseShard);
+        }
         
         // Store the typing function reference so we can cancel it with ESC key
         const typeWithRef = (text, setState, callback = null, index = 0, delay = 30) => {
@@ -367,7 +588,13 @@ export default function TravellerTerminal() {
         setDisplayedText("");
         setLogTypingComplete(false);
         
-        const message = `Date: ${selectedLogData.date}\nAuthor: ${selectedLogData.author}\n\n${selectedLogData.content}`;
+        let message = `Date: ${selectedLogData.date}\nAuthor: ${selectedLogData.author}\n\n${selectedLogData.content}`;
+        
+        // Apply corruption if appropriate for this content
+        if (activeTerminal && shouldCorruptContent(message, activeTerminal.logs)) {
+          const { level, isEclipseShard } = getCorruptionParams(message, activeTerminal.logs);
+          message = applyTextCorruption(message, level, isEclipseShard);
+        }
         
         typeText(message, setDisplayedText, () => {
           setLogTypingComplete(true);
@@ -411,8 +638,8 @@ export default function TravellerTerminal() {
   if (showAudioLogsPage) {
     return (
       <div className="flex flex-col items-center h-screen bg-black">
-        <h1 className="text-green-400 font-mono text-xl my-4">Encrypted Audio Logs</h1>
-        <div className="w-full max-w-md border-green-400 border-2 p-4 overflow-auto">
+        <h1 className="text-green-400 font-mono text-xl my-4 terminal-flicker">Encrypted Audio Logs</h1>
+        <div className="w-full max-w-md border-green-400 border-2 p-4 overflow-auto terminal-flicker">
           {audioLogsData.map((log, index) => (
             <div key={index} style={{ marginBottom: "20px" }}>
               <h2 className="text-green-400 font-mono">{log.title}</h2>
@@ -462,6 +689,7 @@ export default function TravellerTerminal() {
             marginBottom: "10px",
             textAlign: "center"
           }}
+          className="terminal-flicker"
         >
           {initText}
         </div>
@@ -469,7 +697,20 @@ export default function TravellerTerminal() {
       <Card className="w-full max-w-md border-green-400 border-2">
         <CardContent>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
-            <div className="terminal overflow-auto h-[300px]">
+            <div 
+              className={activeTerminal ? getTerminalEffectClasses(activeTerminal.logs) : "terminal terminal-flicker"} 
+              style={{ overflow: "auto", height: "300px", position: "relative" }}
+              ref={terminalRef}
+            >
+              {/* Severe malfunction glitch overlay */}
+              {severeMalfunction && (
+                <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center z-20">
+                  <div className="text-red-500 font-mono text-xl severe-glitch p-4 border border-red-500">
+                    {glitchText}
+                  </div>
+                </div>
+              )}
+              
               {terminalPasswordRequired ? (
                 <div>
                   <p>
@@ -582,7 +823,7 @@ export default function TravellerTerminal() {
                   </div>
                 </div>
               ) : selectedLogData ? (
-                <div>
+                <div className="terminal-glitch">
                   <div style={{ whiteSpace: "pre-wrap" }}>{displayedText}</div>
                   {selectedLogData.audio_file && (
                     <audio

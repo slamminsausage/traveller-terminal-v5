@@ -34,14 +34,14 @@
     "location": "FUW Terminal - Spineworks",
     "date": "062-1105",
     "author": "Mira Torren",
-    "content": "Tomorrow marks the fifth anniversary of my father's sacrifice at the Kalex Neural Systems facility. As tradition, we will gather to honor Daro and all others who gave their lives fighting corporate oppression on Brendis-7.\n\nJarvek will lead the traditional remembrance. The mural has been refreshed, and all members are encouraged to bring a personal item to place at the memorial wall.\n\nRemember, what we fight for transcends personal vengeance. We fight for all workers exploited by House Azura and their puppets. We fight for justice. We fight because the alternative is submission.\n\nMay the Riftjaw stir beneath us all.",
+    "content": "Tomorrow marks the tenth anniversary of my father's sacrifice at the Kalex Neural Systems facility. As tradition, we will gather to honor Daro and all others who gave their lives fighting corporate oppression on Brendis-7.\n\nJarvek will lead the traditional remembrance. The mural has been refreshed, and all members are encouraged to bring a personal item to place at the memorial wall.\n\nRemember, what we fight for transcends personal vengeance. We fight for all workers exploited by House Azura and their puppets. We fight for justice. We fight because the alternative is submission.\n\nMay the Riftjaw stir beneath us all.",
     "security_level": "low",
     "requires_roll": false
   },
   {
     "title": "Surveillance Report: Lysani Movements",
     "location": "FUW Terminal - Spineworks",
-    "date": "078-1105",
+    "date": "060-1105",
     "author": "Strike Core Reconnaissance",
     "content": "Observed unusual activity at Lysani Labs main spire. Multiple secure transports arriving/departing at irregular hours. Security presence doubled at all entrances.\n\nPatient transport pods seen being loaded under heavy guard - at least six units. Destination unknown, but transport registered to ship 'Calendula' (vessel suspected in previous subject acquisition operations).\n\nNotable: Galen Voss personally oversaw transfers. High value operation confirmed.\n\nRECOMMENDATION: Accelerate Operation Broken Scale timetable. Whatever they're moving, it's happening now.",
     "security_level": "medium",
@@ -56,7 +56,7 @@
   {
     "title": "Mission: Offworld Crew Assistance",
     "location": "FUW Terminal - Spineworks",
-    "date": "081-1105",
+    "date": "082-1105",
     "author": "Mira Torren",
     "content": "ATTENTION ALL OPERATIVES:\n\nWe've received intelligence about offworld visitors searching for their confiscated ship - the Vanagandr. This crew may have been victims of Lysani's illegal experimentation program, similar to the workers we lost from Manufacturing Block 7.\n\nIf encountered, these individuals should be considered potential allies against both Vennik and Lysani. They may not understand the full political situation on Brendis-7, but their goals align with our immediate objectives.\n\nAUTHORIZED SUPPORT:\n- Safe passage through FUW-controlled areas in Old Caldonis\n- Basic equipment and weapons (non-restricted categories only)\n- Intelligence on Warehouse Complex security measures\n\nPrimary contact should be Taya Miran or myself. Approach with appropriate caution but remember - the enemy of our enemy deserves consideration.",
     "security_level": "medium",
