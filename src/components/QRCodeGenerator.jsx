@@ -15,7 +15,7 @@ export default function QRCodeGenerator() {
     { id: "blacktalonops", name: "Black Talon Operations" },
     { id: "blacksite", name: "Blacksite ES1 Location" },
     { id: "sayelle", name: "Sayelle Enhancement Records" },
-    { id: "fuw", name: "FUW Resistance Intel" },
+    { id: "fuwnet", name: "FUW Resistance Intel" }, // Changed from "fuw" to "fuwnet"
     { id: "wantedboard", name: "Black Web Wanted Board" }
   ];
   
