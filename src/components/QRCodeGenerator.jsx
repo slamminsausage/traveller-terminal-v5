@@ -1,14 +1,13 @@
 // src/components/QRCodeGenerator.jsx
-// Complete replacement file with correct QRCodeSVG import
 import React, { useState } from "react";
 import { Card, CardContent } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
-import { QRCodeSVG } from "qrcode.react"; // Updated import statement
+import { QRCodeSVG } from "qrcode.react";
 
 export default function QRCodeGenerator() {
   const [pageId, setPageId] = useState("eclipseshard");
-  const [baseUrl, setBaseUrl] = useState("https://your-hosted-site.com");
+  const [baseUrl, setBaseUrl] = useState("https://traveller-terminal-v5.netlify.app");
   
   // List of all available hidden pages
   const availablePages = [
@@ -20,7 +19,42 @@ export default function QRCodeGenerator() {
     { id: "wantedboard", name: "Black Web Wanted Board" }
   ];
   
-  const fullUrl = `${baseUrl}/hidden/${pageId}`;
+  // Ensure the base URL doesn't have a trailing slash when we concatenate
+  const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+  const fullUrl = `${normalizedBaseUrl}/hidden/${pageId}`;
+
+  const downloadQRCode = () => {
+    const svgElement = document.querySelector("svg");
+    const svgData = new XMLSerializer().serializeToString(svgElement);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    
+    // Set canvas dimensions
+    canvas.width = 200;
+    canvas.height = 200;
+    
+    // Create image from SVG
+    const img = new Image();
+    img.onload = function() {
+      // Draw white background
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw the image
+      ctx.drawImage(img, 0, 0);
+      
+      // Create download
+      const pngUrl = canvas.toDataURL("image/png");
+      const downloadLink = document.createElement("a");
+      downloadLink.href = pngUrl;
+      downloadLink.download = `qrcode-${pageId}.png`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    };
+    
+    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+  };
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-black p-4">
@@ -33,7 +67,7 @@ export default function QRCodeGenerator() {
             <Input
               value={baseUrl}
               onChange={(e) => setBaseUrl(e.target.value)}
-              placeholder="https://your-site.com"
+              placeholder="https://traveller-terminal-v5.netlify.app"
             />
           </div>
           
@@ -72,41 +106,7 @@ export default function QRCodeGenerator() {
             <p>When players scan it, they'll access the hidden page.</p>
           </div>
           
-          <Button
-            onClick={() => {
-              // For SVG, we need a different approach to download
-              const svgElement = document.querySelector("svg");
-              const svgData = new XMLSerializer().serializeToString(svgElement);
-              const canvas = document.createElement("canvas");
-              const ctx = canvas.getContext("2d");
-              
-              // Set canvas dimensions
-              canvas.width = 200;
-              canvas.height = 200;
-              
-              // Create image from SVG
-              const img = new Image();
-              img.onload = function() {
-                // Draw white background
-                ctx.fillStyle = "white";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // Draw the image
-                ctx.drawImage(img, 0, 0);
-                
-                // Create download
-                const pngUrl = canvas.toDataURL("image/png");
-                const downloadLink = document.createElement("a");
-                downloadLink.href = pngUrl;
-                downloadLink.download = `qrcode-${pageId}.png`;
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
-              };
-              
-              img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
-            }}
-          >
+          <Button onClick={downloadQRCode}>
             DOWNLOAD QR CODE
           </Button>
         </CardContent>
