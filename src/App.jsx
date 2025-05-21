@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom"; // Changed from BrowserRouter
 import TravellerTerminal from "./components/TravellerTerminal";
 import PoopTerminal from "./components/PoopTerminal";
 import QRCodeGenerator from "./components/QRCodeGenerator";

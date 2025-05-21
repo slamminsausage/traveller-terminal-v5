@@ -21,7 +21,7 @@ export default function QRCodeGenerator() {
   
   // Ensure the base URL doesn't have a trailing slash when we concatenate
   const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-  const fullUrl = `${normalizedBaseUrl}/hidden/${pageId}`;
+  const fullUrl = `${normalizedBaseUrl}/#/hidden/${pageId}`;
 
   const downloadQRCode = () => {
     const svgElement = document.querySelector("svg");
