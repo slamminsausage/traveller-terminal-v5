@@ -4,44 +4,34 @@ import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import RiftjawTerminal from "./RiftjawTerminal";
 
 // Character set for corruption effects
 const corruptionCharacters = "!@#$%^&*()_+-=[]{}|;:,./<>?`~¡™£¢∞§¶•ªº–≠";
 
 /**
  * Corrupts a portion of the text for an immersive glitched terminal effect
- * @param {string} text - The text to corrupt
- * @param {number} corruptionLevel - Between 0 and 1, how severe the corruption should be
- * @param {boolean} isEclipseShard - Whether this is Eclipse Shard content (special effects)
- * @returns {string} - The corrupted text
  */
 const applyTextCorruption = (text, corruptionLevel = 0.02, isEclipseShard = false) => {
   if (!text) return "";
   
-  // Split text into lines to preserve formatting
   const lines = text.split('\n');
   
-  // Process each line
   const corruptedLines = lines.map(line => {
-    // Skip empty lines
     if (line.trim() === '') return line;
     
     let corruptedLine = '';
     
-    // Process each character
     for (let i = 0; i < line.length; i++) {
-      // Eclipse Shard content gets special treatment
       if (isEclipseShard && 
          (line.includes("SHARD") || line.includes("Eclipse") || line.includes("Trevar")) && 
          Math.random() < 0.2) {
-        // Create clusters of corruption around mentions of the Shard
         if (line.substring(i, i+5) === "SHARD" || 
             (i >= 5 && line.substring(i-5, i) === "SHARD") ||
             line.substring(i, i+7) === "Eclipse" || 
             (i >= 7 && line.substring(i-7, i) === "Eclipse") ||
             line.substring(i, i+6) === "Trevar" || 
             (i >= 6 && line.substring(i-6, i) === "Trevar")) {
-          // Higher corruption near keyword mentions
           if (Math.random() < 0.4) {
             corruptedLine += corruptionCharacters.charAt(
               Math.floor(Math.random() * corruptionCharacters.length)
@@ -51,14 +41,11 @@ const applyTextCorruption = (text, corruptionLevel = 0.02, isEclipseShard = fals
         }
       }
       
-      // Regular corruption chance based on corruptionLevel
       if (Math.random() < corruptionLevel) {
-        // Replace with a random corruption character
         corruptedLine += corruptionCharacters.charAt(
           Math.floor(Math.random() * corruptionCharacters.length)
         );
       } else {
-        // Keep original character
         corruptedLine += line[i];
       }
     }
@@ -73,12 +60,10 @@ const applyTextCorruption = (text, corruptionLevel = 0.02, isEclipseShard = fals
 const getTerminalEffectClasses = (terminalId) => {
   if (!terminalId) return "terminal terminal-flicker";
   
-  // Extract the terminal ID from the logs path if needed
   const terminalName = terminalId.includes("/") 
     ? terminalId.replace("/logs/", "").replace(".json", "")
     : terminalId;
   
-  // Define terminals that should have more severe effects
   const damagedTerminals = ["blacksite-es1", "sayelle-logs", "vennik-personal"];
   const minorGlitchTerminals = ["fuwnet", "vanagandr001", "fuw01", "blacktalon"];
   
@@ -87,7 +72,6 @@ const getTerminalEffectClasses = (terminalId) => {
   } else if (minorGlitchTerminals.includes(terminalName)) {
     return "terminal terminal-flicker terminal-scanlines";
   } else {
-    // Default terminals have subtle effects
     return "terminal terminal-flicker";
   }
 };
@@ -100,7 +84,6 @@ const shouldCorruptContent = (content, terminalId) => {
     ? terminalId.replace("/logs/", "").replace(".json", "")
     : terminalId;
   
-  // Define which terminals should have corrupted text
   const corruptTerminals = ["blacksite-es1", "vennik-personal", "sayelle-logs", "blacktalon"];
   
   return corruptTerminals.includes(terminalName) || 
@@ -117,12 +100,10 @@ const getCorruptionParams = (content, terminalId) => {
     ? terminalId.replace("/logs/", "").replace(".json", "")
     : terminalId;
   
-  // Check for Eclipse Shard content
   const isEclipseContent = content.includes("Eclipse Shard") || 
                          content.includes("ES1") ||
                          terminalName === "blacksite-es1";
                          
-  // Check for other special terminals
   const isSayelleLog = terminalName.includes("sayelle");
   const isBlacksiteLog = terminalName.includes("blacksite");
   
@@ -145,7 +126,6 @@ const terminals = {
   "waferterm01": { requiresRoll: false, logs: "/logs/waferterm01.json" },
   "labpc81": { requiresRoll: 6, logs: "/logs/labpc81.json" },
   "vanagandr001": { requiresRoll: 8, logs: "/logs/vanagandr001.json" },
-  // New terminals for Caldonis:
   "blackcircuit01": { requiresRoll: 8, logs: "/logs/blackcircuit01.json" },
   "fuw01": { requiresRoll: 8, logs: "/logs/fuw01.json" },
   "azura01": { requiresRoll: 10, logs: "/logs/azura01.json" },
@@ -155,13 +135,13 @@ const terminals = {
     requiresPassword: true,
     password: "vennik4ever"
   },
-  "caldonis_public": { requiresRoll: false, logs: "/logs/caldonis_public.json" }, // Added comma here
-  // Add these new secret terminals with correct syntax
+  "caldonis_public": { requiresRoll: false, logs: "/logs/caldonis_public.json" },
   "blacksite-es1": { requiresRoll: 10, logs: "/logs/blacksite-es1.json" },
   "blacktalon": { requiresRoll: 12, logs: "/logs/blacktalon.json" },
   "vennik-personal": { requiresRoll: 10, logs: "/logs/vennik-personal.json" },
   "sayelle-logs": { requiresRoll: 8, logs: "/logs/sayelle-logs.json" },
-  "fuwnet": { requiresRoll: 8, logs: "/logs/fuw-network.json" }
+  "fuwnet": { requiresRoll: 8, logs: "/logs/fuw-network.json" },
+  "01-1485-10-4-89-40": { requiresRoll: false, logs: "/logs/01-1485-10-4-89-40.json" }
 };
 
 const typeText = (text, setState, callback = null, index = 0, delay = 30) => {
@@ -189,7 +169,7 @@ export default function TravellerTerminal() {
   const [selectedLogData, setSelectedLogData] = useState(null);
   const [displayedText, setDisplayedText] = useState("");
   const [logTypingComplete, setLogTypingComplete] = useState(false);
-  const [currentView, setCurrentView] = useState("init"); // "init", "terminal", "log"
+  const [currentView, setCurrentView] = useState("init");
 
   // Password-related states
   const [requiresPassword, setRequiresPassword] = useState(false);
@@ -200,34 +180,37 @@ export default function TravellerTerminal() {
   const [terminalPasswordRequired, setTerminalPasswordRequired] = useState(false);
   const [terminalPasswordAttempts, setTerminalPasswordAttempts] = useState(0);
 
+  // NEW: Multi-level authentication states
+  const [multiLevelAuth, setMultiLevelAuth] = useState(null);
+  const [currentAuthLevel, setCurrentAuthLevel] = useState(0);
+  const [authStep, setAuthStep] = useState("content");
+  const [authData, setAuthData] = useState(null);
+
   // Grouping state for grouped logs
   const [expandedGroup, setExpandedGroup] = useState(null);
-  // State for displaying a separate page for grouped audio logs
   const [showAudioLogsPage, setShowAudioLogsPage] = useState(false);
   const [audioLogsData, setAudioLogsData] = useState([]);
   
-  // New states for screen flicker effects
+  // States for screen flicker effects
   const [severeMalfunction, setSevereMalfunction] = useState(false);
   const [glitchText, setGlitchText] = useState("");
   const terminalRef = useRef(null);
+  
+  // New state for Riftjaw terminal
+  const [showRiftjawTerminal, setShowRiftjawTerminal] = useState(false);
 
   // Random severe glitch effect
   useEffect(() => {
     if (!activeTerminal || !selectedLogData) return;
     
-    // Only enable for certain terminal types
     const terminalName = activeTerminal.logs.replace("/logs/", "").replace(".json", "");
     const glitchEnabledTerminals = ["blacksite-es1", "vennik-personal", "fuwnet", "sayelle-logs", "blacktalon"];
     
     if (glitchEnabledTerminals.includes(terminalName)) {
-      // Random chance to trigger a glitch
       const randomGlitch = () => {
-        // 5% chance of a glitch
         if (Math.random() < 0.05) {
-          // Trigger a glitch effect
           setSevereMalfunction(true);
           
-          // Generate glitch text
           const glitchMessages = [
             "WARNING: SIGNAL INTEGRITY FAILING",
             "CRC ERROR DETECTED IN DATA STREAM",
@@ -237,10 +220,8 @@ export default function TravellerTerminal() {
             "SECURITY BREACH ATTEMPT DETECTED"
           ];
           
-          // Pick a random message
           setGlitchText(glitchMessages[Math.floor(Math.random() * glitchMessages.length)]);
           
-          // Clear the glitch after a short time
           setTimeout(() => {
             setSevereMalfunction(false);
             setGlitchText("");
@@ -248,8 +229,7 @@ export default function TravellerTerminal() {
         }
       };
       
-      // Set up interval for random glitches
-      const glitchInterval = setInterval(randomGlitch, 10000); // Check every 10 seconds
+      const glitchInterval = setInterval(randomGlitch, 10000);
       
       return () => {
         clearInterval(glitchInterval);
@@ -261,14 +241,11 @@ export default function TravellerTerminal() {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
-        // Stop the typing animation and show full text
         if (currentView === "log" && !logTypingComplete) {
           setLogTypingComplete(true);
-          // Clear the typing timeout
           if (typingRef.current) {
             clearTimeout(typingRef.current);
           }
-          // If this is a log with content, show it all
           if (selectedLogData) {
             let fullText = "";
             if (selectedLogData.roll_check && selectedLogData.roll_check.on_success) {
@@ -276,7 +253,6 @@ export default function TravellerTerminal() {
             }
             fullText += `Date: ${selectedLogData.date}\nAuthor: ${selectedLogData.author}\n\n${selectedLogData.content}`;
             
-            // Apply corruption if needed
             if (activeTerminal && shouldCorruptContent(fullText, activeTerminal.logs)) {
               const { level, isEclipseShard } = getCorruptionParams(fullText, activeTerminal.logs);
               fullText = applyTextCorruption(fullText, level, isEclipseShard);
@@ -285,7 +261,6 @@ export default function TravellerTerminal() {
             setDisplayedText(fullText);
           }
         }
-        // Navigate back based on current view
         else if (currentView === "log") {
           handleBackToTerminal();
         } 
@@ -294,15 +269,12 @@ export default function TravellerTerminal() {
         }
       }
       else if (e.key === "Enter") {
-        // Handle terminal password submission
         if (terminalPasswordRequired) {
           handleTerminalPasswordSubmit();
         }
-        // Handle individual log password submission
         else if (requiresPassword && !isPasswordUnlocked) {
           handlePasswordSubmit();
         }
-        // Handle main terminal code input
         else if (currentView === "init" && inputCode.trim() !== "") {
           handleAccessCode();
         }
@@ -354,9 +326,15 @@ export default function TravellerTerminal() {
   }, []);
 
   const handleAccessCode = () => {
-    // Check for our silly terminal first:
     if (inputCode.trim().toLowerCase() === "poop") {
       navigate("/poop");
+      return;
+    }
+    
+    // Check for Riftjaw terminal
+    if (inputCode.trim() === "01-1485-10-4-89-40") {
+      setShowRiftjawTerminal(true);
+      setInputCode("");
       return;
     }
     
@@ -365,7 +343,6 @@ export default function TravellerTerminal() {
       setActiveTerminal(terminal);
       setCurrentView("terminal");
       
-      // Check if the terminal requires a password
       if (terminal.requiresPassword && !isPasswordUnlocked) {
         setTerminalPasswordRequired(true);
       } 
@@ -384,15 +361,13 @@ export default function TravellerTerminal() {
     if (activeTerminal && terminalPasswordInput === activeTerminal.password) {
       setTerminalPasswordRequired(false);
       setIsPasswordUnlocked(true);
-      
-      // If password is correct, bypass the roll check entirely and fetch logs directly
       fetchLogs(activeTerminal.logs);
     } else {
       const attempts = terminalPasswordAttempts + 1;
       setTerminalPasswordAttempts(attempts);
       setTerminalPasswordInput("");
       
-      if (attempts >= 3) { // After 3 failed attempts
+      if (attempts >= 3) {
         setTerminalPasswordRequired(false);
         
         if (activeTerminal && activeTerminal.requiresRoll) {
@@ -440,13 +415,11 @@ export default function TravellerTerminal() {
             message = `Date: ${selectedLogData.date}\nAuthor: ${selectedLogData.author}\n\n${selectedLogData.content}`;
           }
           
-          // Apply corruption if appropriate for this content
           if (activeTerminal && shouldCorruptContent(message, activeTerminal.logs)) {
             const { level, isEclipseShard } = getCorruptionParams(message, activeTerminal.logs);
             message = applyTextCorruption(message, level, isEclipseShard);
           }
           
-          // Store the typing function reference so we can cancel it with ESC key
           const typeWithRef = (text, setState, callback = null, index = 0, delay = 30) => {
             if (index < text.length) {
               setState(prev => prev + text[index]);
@@ -488,36 +461,71 @@ export default function TravellerTerminal() {
       if (Array.isArray(data)) {
         setLogData(data);
       } else {
-        setSelectedLogData(data);
-        setCurrentView("log");
-        setDisplayedText("");
-        setLogTypingComplete(false);
-        
-        let message = `Date: ${data.date}\nAuthor: ${data.author}\n\n${data.content || "No data available."}`;
-        
-        // Apply corruption if appropriate for this content
-        if (activeTerminal && shouldCorruptContent(message, activeTerminal.logs)) {
-          const { level, isEclipseShard } = getCorruptionParams(message, activeTerminal.logs);
-          message = applyTextCorruption(message, level, isEclipseShard);
-        }
-        
-        // Store the typing function reference so we can cancel it with ESC key
-        const typeWithRef = (text, setState, callback = null, index = 0, delay = 30) => {
-          if (index < text.length) {
-            setState(prev => prev + text[index]);
-            typingRef.current = setTimeout(
-              () => typeWithRef(text, setState, callback, index + 1, delay), 
-              delay
-            );
-          } else {
-            typingRef.current = null;
-            if (callback) callback();
+        // Check if this is the special multi-level authentication terminal
+        if (logPath.includes("01-1485-10-4-89-40")) {
+          setMultiLevelAuth(data);
+          setCurrentAuthLevel(0);
+          setAuthStep("content");
+          setAuthData(data);
+          setCurrentView("multi-auth");
+          setDisplayedText("");
+          setLogTypingComplete(false);
+          
+          let message = `${data.title}\n\nDate: ${data.date}\nAuthor: ${data.author}\n\n${data.content}`;
+          
+          const typeWithRef = (text, setState, callback = null, index = 0, delay = 30) => {
+            if (index < text.length) {
+              setState(prev => prev + text[index]);
+              typingRef.current = setTimeout(
+                () => typeWithRef(text, setState, callback, index + 1, delay), 
+                delay
+              );
+            } else {
+              typingRef.current = null;
+              if (callback) callback();
+            }
+          };
+          
+          typeWithRef(message, setDisplayedText, () => {
+            setLogTypingComplete(true);
+          });
+        } else {
+          setSelectedLogData(data);
+          setCurrentView("log");
+          setDisplayedText("");
+          setLogTypingComplete(false);
+          
+          if (data.requires_password) {
+            setRequiresPassword(true);
+            setPasswordInput("");
+            setPasswordAttempts(0);
+            setIsPasswordUnlocked(false);
           }
-        };
-        
-        typeWithRef(message, setDisplayedText, () => {
-          setLogTypingComplete(true);
-        });
+          
+          let message = `Date: ${data.date}\nAuthor: ${data.author}\n\n${data.content || "No data available."}`;
+          
+          if (activeTerminal && shouldCorruptContent(message, activeTerminal.logs)) {
+            const { level, isEclipseShard } = getCorruptionParams(message, activeTerminal.logs);
+            message = applyTextCorruption(message, level, isEclipseShard);
+          }
+          
+          const typeWithRef = (text, setState, callback = null, index = 0, delay = 30) => {
+            if (index < text.length) {
+              setState(prev => prev + text[index]);
+              typingRef.current = setTimeout(
+                () => typeWithRef(text, setState, callback, index + 1, delay), 
+                delay
+              );
+            } else {
+              typingRef.current = null;
+              if (callback) callback();
+            }
+          };
+          
+          typeWithRef(message, setDisplayedText, () => {
+            setLogTypingComplete(true);
+          });
+        }
       }
     } catch (error) {
       typeText("ERROR LOADING LOGS.", setTerminalData);
@@ -550,13 +558,11 @@ export default function TravellerTerminal() {
         
         let message = `Date: ${log.date}\nAuthor: ${log.author}\n\n${log.content}`;
         
-// Apply corruption if appropriate for this content
         if (activeTerminal && shouldCorruptContent(message, activeTerminal.logs)) {
           const { level, isEclipseShard } = getCorruptionParams(message, activeTerminal.logs);
           message = applyTextCorruption(message, level, isEclipseShard);
         }
         
-        // Store the typing function reference so we can cancel it with ESC key
         const typeWithRef = (text, setState, callback = null, index = 0, delay = 30) => {
           if (index < text.length) {
             setState(prev => prev + text[index]);
@@ -577,10 +583,171 @@ export default function TravellerTerminal() {
     }
   };
 
+  const handleMultiAuthNext = () => {
+    console.log("handleMultiAuthNext called");
+    console.log("Current authData:", authData);
+    console.log("authData.password:", authData.password);
+    
+    setAuthStep("password");
+    setPasswordInput("");
+    setPasswordAttempts(0);
+    setDisplayedText("");
+    setLogTypingComplete(false);
+    
+    let message = `Password required for ${authData.title}.\nAttempts remaining: 3\n\nEnter passphrase:`;
+    
+    const typeWithRef = (text, setState, callback = null, index = 0, delay = 30) => {
+      if (index < text.length) {
+        setState(prev => prev + text[index]);
+        typingRef.current = setTimeout(
+          () => typeWithRef(text, setState, callback, index + 1, delay), 
+          delay
+        );
+      } else {
+        typingRef.current = null;
+        if (callback) callback();
+      }
+    };
+    
+    typeWithRef(message, setDisplayedText, () => {
+      setLogTypingComplete(true);
+    });
+  };
+
+  const handleMultiAuthPassword = () => {
+    console.log("handleMultiAuthPassword called");
+    console.log("passwordInput:", passwordInput);
+    console.log("authData.password:", authData.password);
+    console.log("Match?", passwordInput === authData.password);
+    
+    if (passwordInput === authData.password) {
+      setAuthStep("success");
+      setDisplayedText("");
+      setLogTypingComplete(false);
+      
+      let successMessage = authData.on_success || "Authentication successful.";
+      
+      const typeWithRef = (text, setState, callback = null, index = 0, delay = 30) => {
+        if (index < text.length) {
+          setState(prev => prev + text[index]);
+          typingRef.current = setTimeout(
+            () => typeWithRef(text, setState, callback, index + 1, delay), 
+            delay
+          );
+        } else {
+          typingRef.current = null;
+          if (callback) callback();
+        }
+      };
+      
+      typeWithRef(successMessage, setDisplayedText, () => {
+        setLogTypingComplete(true);
+        
+        setTimeout(() => {
+          console.log("=== MOVING TO NEXT LEVEL ===");
+          console.log("Current authData:", authData);
+          console.log("authData.next_log exists:", !!authData.next_log);
+          console.log("Current currentView:", currentView);
+          
+          if (authData.next_log) {
+            const nextLevelData = authData.next_log;
+            console.log("nextLevelData:", nextLevelData);
+            console.log("Setting currentView to multi-auth");
+            console.log("Setting authStep to content");
+            
+            setCurrentAuthLevel(currentAuthLevel + 1);
+            setAuthData(nextLevelData);
+            setAuthStep("content");
+            setPasswordInput("");
+            setPasswordAttempts(0);
+            setDisplayedText("");
+            setLogTypingComplete(false);
+            setCurrentView("multi-auth");
+            
+            console.log("About to type next message");
+            
+            let nextMessage = `${nextLevelData.title}\n\nDate: ${nextLevelData.date}\nAuthor: ${nextLevelData.author}\n\n${nextLevelData.content}`;
+            
+            typeWithRef(nextMessage, setDisplayedText, () => {
+              console.log("Typing complete for next level");
+              setLogTypingComplete(true);
+            });
+          } else {
+            console.log("No next_log found - this should be final archive");
+            setCurrentView("log");
+            setSelectedLogData(authData);
+            setDisplayedText("");
+            setLogTypingComplete(false);
+            
+            let finalMessage = `${authData.title}\n\nDate: ${authData.date}\nAuthor: ${authData.author}\n\n${authData.content}`;
+            
+            typeWithRef(finalMessage, setDisplayedText, () => {
+              setLogTypingComplete(true);
+            });
+          }
+        }, 2000);
+      });
+    } else {
+      const attempts = passwordAttempts + 1;
+      setPasswordAttempts(attempts);
+      setPasswordInput("");
+      
+      if (attempts >= (authData.attemptsAllowed || 3)) {
+        setDisplayedText("");
+        setLogTypingComplete(false);
+        
+        let failureMessage = "Maximum attempts exceeded. Access denied.";
+        
+        const typeWithRef = (text, setState, callback = null, index = 0, delay = 30) => {
+          if (index < text.length) {
+            setState(prev => prev + text[index]);
+            typingRef.current = setTimeout(
+              () => typeWithRef(text, setState, callback, index + 1, delay), 
+              delay
+            );
+          } else {
+            typingRef.current = null;
+            if (callback) callback();
+          }
+        };
+        
+        typeWithRef(failureMessage, setDisplayedText, () => {
+          setLogTypingComplete(true);
+          setTimeout(() => {
+            handleBackToInit();
+          }, 2000);
+        });
+      } else {
+        setDisplayedText("");
+        setLogTypingComplete(false);
+        
+        let failureMessage = `${authData.on_failure || "Incorrect password."}\n\nAttempts remaining: ${(authData.attemptsAllowed || 3) - attempts}\n\nEnter passphrase:`;
+        
+        const typeWithRef = (text, setState, callback = null, index = 0, delay = 30) => {
+          if (index < text.length) {
+            setState(prev => prev + text[index]);
+            typingRef.current = setTimeout(
+              () => typeWithRef(text, setState, callback, index + 1, delay), 
+              delay
+            );
+          } else {
+            typingRef.current = null;
+            if (callback) callback();
+          }
+        };
+        
+        typeWithRef(failureMessage, setDisplayedText, () => {
+          setLogTypingComplete(true);
+        });
+      }
+    }
+  };
+
   const handlePasswordSubmit = () => {
     if (passwordInput === selectedLogData.password) {
       setIsPasswordUnlocked(true);
       setRequiresPassword(false);
+      
       if (selectedLogData.logs) {
         setAudioLogsData(selectedLogData.logs);
         setShowAudioLogsPage(true);
@@ -590,7 +757,6 @@ export default function TravellerTerminal() {
         
         let message = `Date: ${selectedLogData.date}\nAuthor: ${selectedLogData.author}\n\n${selectedLogData.content}`;
         
-        // Apply corruption if appropriate for this content
         if (activeTerminal && shouldCorruptContent(message, activeTerminal.logs)) {
           const { level, isEclipseShard } = getCorruptionParams(message, activeTerminal.logs);
           message = applyTextCorruption(message, level, isEclipseShard);
@@ -617,7 +783,6 @@ export default function TravellerTerminal() {
     setDisplayedText("");
     setLogTypingComplete(false);
     setCurrentView("terminal");
-    // Cancel any ongoing typing
     if (typingRef.current) {
       clearTimeout(typingRef.current);
       typingRef.current = null;
@@ -633,7 +798,22 @@ export default function TravellerTerminal() {
     setTerminalPasswordInput("");
     setTerminalPasswordAttempts(0);
     setIsPasswordUnlocked(false);
+    setMultiLevelAuth(null);
+    setCurrentAuthLevel(0);
+    setAuthStep("content");
+    setAuthData(null);
+    setShowRiftjawTerminal(false);
   };
+
+  // Handle returning from Riftjaw terminal
+  const handleRiftjawBack = () => {
+    setShowRiftjawTerminal(false);
+  };
+
+  // Show Riftjaw terminal if requested
+  if (showRiftjawTerminal) {
+    return <RiftjawTerminal onBack={handleRiftjawBack} />;
+  }
 
   if (showAudioLogsPage) {
     return (
@@ -702,7 +882,6 @@ export default function TravellerTerminal() {
               style={{ overflow: "auto", height: "300px", position: "relative" }}
               ref={terminalRef}
             >
-              {/* Severe malfunction glitch overlay */}
               {severeMalfunction && (
                 <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center z-20">
                   <div className="text-red-500 font-mono text-xl severe-glitch p-4 border border-red-500">
@@ -713,12 +892,8 @@ export default function TravellerTerminal() {
               
               {terminalPasswordRequired ? (
                 <div>
-                  <p>
-                    Terminal requires password authentication.
-                  </p>
-                  <p>
-                    Attempts remaining: {3 - terminalPasswordAttempts}
-                  </p>
+                  <p>Terminal requires password authentication.</p>
+                  <p>Attempts remaining: {3 - terminalPasswordAttempts}</p>
                   <div className="mt-4">
                     <Input
                       className="bg-black text-green-400 border border-green-400 px-3 py-2 font-mono focus:outline-none"
@@ -747,6 +922,62 @@ export default function TravellerTerminal() {
                       </Button>
                     </div>
                   </div>
+                </div>
+              ) : currentView === "multi-auth" ? (
+                <div>
+                  <div style={{ whiteSpace: "pre-wrap", marginBottom: "10px" }}>{displayedText}</div>
+                  {/* DEBUG INFO */}
+                  <div style={{ fontSize: '10px', color: '#666', marginBottom: '10px' }}>
+                    DEBUG: authStep={authStep}, logTypingComplete={logTypingComplete}, currentAuthLevel={currentAuthLevel}
+                  </div>
+                  {logTypingComplete && (
+                    <div>
+                      {authStep === "content" && (
+                        <Button
+                          className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500 mt-2"
+                          onClick={handleMultiAuthNext}
+                        >
+                          Next
+                        </Button>
+                      )}
+                      {authStep === "password" && (
+                        <div className="mt-2">
+                          <Input
+                            className="bg-black text-green-400 border border-green-400 px-3 py-2 font-mono focus:outline-none"
+                            placeholder="Enter Passphrase"
+                            value={passwordInput}
+                            onChange={(e) => setPasswordInput(e.target.value)}
+                            type="password"
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                handleMultiAuthPassword();
+                              }
+                            }}
+                          />
+                          <div className="flex gap-2 mt-2">
+                            <Button
+                              className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500"
+                              onClick={handleMultiAuthPassword}
+                            >
+                              Submit
+                            </Button>
+                            <Button
+                              className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500"
+                              onClick={handleBackToInit}
+                            >
+                              Back
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  <Button
+                    className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500 mt-2"
+                    onClick={handleBackToInit}
+                  >
+                    Back
+                  </Button>
                 </div>
               ) : specialRollCheck ? (
                 <div>
@@ -791,8 +1022,9 @@ export default function TravellerTerminal() {
                 </div>
               ) : selectedLogData && requiresPassword && !isPasswordUnlocked ? (
                 <div>
+                  <div style={{ whiteSpace: "pre-wrap", marginBottom: "10px" }}>{displayedText}</div>
                   <p>
-                    Password required for {selectedLogData.title}. Attempts remaining:{" "}
+                    Password required. Attempts remaining:{" "}
                     {(selectedLogData.attemptsAllowed || 3) - passwordAttempts}
                   </p>
                   <Input
@@ -801,8 +1033,8 @@ export default function TravellerTerminal() {
                     value={passwordInput}
                     onChange={(e) => setPasswordInput(e.target.value)}
                     type="password"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
                         handlePasswordSubmit();
                       }
                     }}
