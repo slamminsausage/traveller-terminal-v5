@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { useParams, useNavigate } from "react-router-dom";
+import AudioManager from '../utils/AudioManager';
 
 const typeText = (text, setState, callback = null, index = 0, delay = 30) => {
   if (index < text.length) {
@@ -36,7 +37,8 @@ CRITICAL: Subject Trevar's final report indicates the Shard may be attempting co
 "It doesn't just change you. It opens doors in your mind that were never meant to be opened. And something is waiting on the other side."`,
     audioFile: null,
     showImage: false,
-    autoPlayAudio: false
+    autoPlayAudio: false,
+    ambientType: 'corrupted'
   },
   "blacktalonops": {
     title: "Black Talon Operation Files",
@@ -61,7 +63,8 @@ The Vanagandr crew presents an anomaly. Standard memory suppression protocols ha
 Recommended course: Allow auction to proceed. Use chaos as cover for asset extraction. Leave no witnesses.`,
     audioFile: null,
     showImage: false,
-    autoPlayAudio: false
+    autoPlayAudio: false,
+    ambientType: 'secure'
   },
   "blacksite": {
     title: "Blacksite ES1 Location Data",
@@ -88,7 +91,8 @@ The anomalous effects of the Eclipse Shard appear to intensify within the unique
 Subject E. Trevar demonstrated the most promising compatibility with the Shard and remains in deep containment at the facility. His neural patterns now show 87% synchronization with the Shard's energy signature.`,
     audioFile: null,
     showImage: false,
-    autoPlayAudio: false
+    autoPlayAudio: false,
+    ambientType: 'damaged'
   },
   "sayelle": {
     title: "Subject: Sayelle - Enhancement Records",
@@ -117,7 +121,8 @@ Sayelle's survival on Neon was unexpected but ultimately beneficial. Her obsessi
 WARNING: Bloodhound operates with extreme prejudice. Collateral damage likely if target acquisition occurs in populated areas.`,
     audioFile: null,
     showImage: false,
-    autoPlayAudio: false
+    autoPlayAudio: false,
+    ambientType: 'secure'
   },
   "fuwnet": {
     title: "Free Union of Workers - Resistance Network",
@@ -152,7 +157,8 @@ Strike Core Command
 THE SCALE WILL BREAK`,
     audioFile: "/audio/SCRebelRadio.mp3",
     showImage: false,
-    autoPlayAudio: true
+    autoPlayAudio: true,
+    ambientType: 'normal'
   },
   "wantedboard": {
     title: "BLACK WEB WANTED BOARD - PRIORITY TARGETS",
@@ -237,6 +243,7 @@ CONTACT: Secure transmission protocols only. Use encryption key SIGMA-VOID-ECHO-
     audioFile: null,
     showImage: true,
     autoPlayAudio: false,
+    ambientType: 'secure',
     targetImages: {
       "KNUCK": "/images/wanted/knuck.jpg",
       "SIR BRONCO": "/images/wanted/bronco.jpg", 
@@ -254,7 +261,8 @@ export default function HiddenPage() {
     const [initText, setInitText] = useState("");
     const [isTyping, setIsTyping] = useState(false);
     const [initComplete, setInitComplete] = useState(false);
-    const [escPressed, setEscPressed] = useState(0); // Track ESC presses
+    const [escPressed, setEscPressed] = useState(0);
+    const [soundEnabled, setSoundEnabled] = useState(true);
     
     const hasInitialized = useRef(false);
     const terminalRef = useRef(null);
@@ -266,237 +274,292 @@ export default function HiddenPage() {
       content: "This data fragment does not exist or has been corrupted.",
       audioFile: null,
       showImage: false,
-      autoPlayAudio: false
+      autoPlayAudio: false,
+      ambientType: 'normal'
     };
   
-    // Function to handle audio playback
-    const playAudio = () => {
-      if (audioRef.current && pageData.autoPlayAudio) {
-        audioRef.current.volume = 0.5; // Set a reasonable default volume
-        audioRef.current.play().catch(error => {
-          console.log("Audio autoplay prevented by browser:", error);
-        });
-      }
-    };
-  
-    // Function to complete typing immediately
-    const completeTyping = () => {
-      if (isTyping) {
-        // Stop any ongoing typing
-        typingRef.current.active = false;
-        setIsTyping(false);
-        
-        if (!initComplete) {
-          // Complete initialization
-          setInitText(prev => {
-            const currentText = prev;
-            const welcomeMessage = `\nSECURE ACCESS GRANTED\nRETRIEVING DATA FILE: ${pageData.title}\n\n`;
-            return currentText + welcomeMessage;
-          });
-          setInitComplete(true);
-          
-          // Display full content immediately
-          setDisplayedText(pageData.content);
-          setTextComplete(true);
-          
-          // Play audio if this is a page with autoplay audio
-          playAudio();
-        } else {
-          // Just complete the content
-          setDisplayedText(pageData.content);
-          setTextComplete(true);
-        }
-      }
-    };
-  
-    // Custom typeText that can be interrupted
-    const customTypeText = (text, setState, callback = null, index = 0, delay = 30) => {
-      setIsTyping(true);
-      typingRef.current.active = true;
-      
-      if (index < text.length && typingRef.current.active) {
-        setState(prev => prev + text[index]);
-        setTimeout(() => customTypeText(text, setState, callback, index + 1, delay), delay);
-      } else {
-        if (typingRef.current.active && callback) callback();
-        setIsTyping(false);
-        typingRef.current.active = false;
-      }
-    };
-  
-    // Event listener for ESC key
+    // Initialize audio
     useEffect(() => {
-      const handleKeyDown = (e) => {
-        if (e.key === "Escape") {
-          setEscPressed(prev => {
-            // First press completes typing
-            if (prev === 0 && isTyping) {
-              completeTyping();
-              return 1;
-            } 
-            // Second press returns to main terminal
-            else if (prev >= 1 || !isTyping) {
-              navigate("/");
-              return 0;
-            }
-            return prev;
-          });
-        }
-      };
+      AudioManager.preloadSounds();
       
-      window.addEventListener("keydown", handleKeyDown);
-      return () => {
-        window.removeEventListener("keydown", handleKeyDown);
-      };
-    }, [isTyping, navigate]);
-  
-    // Auto scroll function
-    useEffect(() => {
-      if (terminalRef.current) {
-        terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
-      }
-    }, [displayedText, textComplete, initText]);
-  
-    // Main initialization logic
-    useEffect(() => {
-      if (hasInitialized.current) return;
-      hasInitialized.current = true;
-  
-      const loadingMessages = [
-        "Establishing secure connection...",
-        "Decrypting data stream...",
-        "Authenticating access credentials...",
-        "Security protocols bypassed."
-      ];
-      
-      let i = 0;
-      const displayNextMessage = () => {
-        if (i < loadingMessages.length && typingRef.current.active) {
-          customTypeText(loadingMessages[i] + "\n", setInitText, () => {
-            setInitText(prev => prev + "\n");
-            i++;
-            displayNextMessage();
-          }, 0, 50);
-        } else if (typingRef.current.active) {
-          const welcomeMessage = 
-            `\nSECURE ACCESS GRANTED\n` +
-            `RETRIEVING DATA FILE: ${pageData.title}\n\n`;
-          customTypeText(welcomeMessage, setInitText, () => {
-            setInitComplete(true);
-            customTypeText(pageData.content, setDisplayedText, () => {
-              setTextComplete(true);
-              // Play audio when text is complete
-              playAudio();
-            });
-          }, 0, 50);
-        }
-      };
-      
-      typingRef.current.active = true;
-      displayNextMessage();
-      
-      return () => {
-        typingRef.current.active = false;
-        // Stop audio playback when component unmounts
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current.currentTime = 0;
-        }
-      };
-    }, [pageId, pageData.title, pageData.content, pageData.autoPlayAudio]);
-  
-    // Rendering for wanted board with images
-    const renderWantedBoard = () => {
-      if (!pageData.showImage || !pageData.targetImages) return null;
-      
-      return (
-        <div className="mt-6 grid grid-cols-2 gap-4">
-          {Object.entries(pageData.targetImages).map(([name, imagePath]) => (
-            <div key={name} className="border border-green-400 p-2">
-              <div className="text-green-400 font-mono text-center mb-2">{name}</div>
-              <div className="flex justify-center">
-                <img 
-                  src={imagePath} 
-                  alt={`Wanted: ${name}`} 
-                  className="w-full h-auto max-h-48 object-cover border border-green-400" 
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = "/images/wanted/placeholder.jpg";
-                  }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      );
-    };
-  
-    return (
-      <div className="flex flex-col items-center h-screen bg-black p-4">
-        {/* Hidden audio element that can autoplay */}
-        {pageData.audioFile && (
-          <audio
-            ref={audioRef}
-            src={pageData.audioFile}
-            loop={false}
-            style={{ display: "none" }}
-          />
-        )}
-        
-        <Card className="w-full max-w-md border-green-400 border-2">
-          <CardContent>
-            <div
-              style={{
-                fontFamily: "monospace",
-                color: "#33ff33",
-                whiteSpace: "pre-wrap",
-                marginBottom: "10px",
-                textAlign: "left"
-              }}
-            >
-              {initText}
-              {isTyping && !initComplete && <span className="blinking-cursor">▌</span>}
-            </div>
-            <div 
-              className="terminal overflow-auto h-[300px]" 
-              ref={terminalRef}
-            >
-              <div style={{ whiteSpace: "pre-wrap" }}>
-                {displayedText}
-                {isTyping && initComplete && <span className="blinking-cursor">▌</span>}
-              </div>
-              
-              {/* Render wanted board INSIDE the scrollable terminal */}
-              {textComplete && pageData.showImage && renderWantedBoard()}
-              
-              {/* Visible audio controls (only shown when not auto-playing) */}
-              {pageData.audioFile && textComplete && !pageData.autoPlayAudio && (
-                <audio
-                  controls
-                  style={{
-                    backgroundColor: "black",
-                    border: "1px solid #33ff33",
-                    borderRadius: "5px",
-                    width: "100%",
-                    marginTop: "10px",
-                    color: "#33ff33"
-                  }}
-                >
-                  <source src={pageData.audioFile} type="audio/mp3" />
-                  Your browser does not support the audio element.
-                </audio>
-              )}
-            </div>
-            <div className="mt-4 flex justify-between items-center">
-              <Button onClick={() => navigate("/")}>
-                RETURN TO MAIN TERMINAL
-              </Button>
-              <div className="text-green-400 text-xs">
-                {isTyping ? "Press ESC to skip typing" : "Press ESC to return"}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+// Play ambient sound based on page type
+     const ambientType = pageData.ambientType || 'normal';
+     AudioManager.playAmbient(ambientType, 0.2);
+     
+     return () => {
+       AudioManager.stopAmbient();
+     };
+   }, [pageData.ambientType]);
+ 
+   // Function to handle audio playback
+   const playAudio = () => {
+     if (audioRef.current && pageData.autoPlayAudio) {
+       audioRef.current.volume = 0.5;
+       audioRef.current.play().catch(error => {
+         console.log("Audio autoplay prevented by browser:", error);
+       });
+     }
+   };
+ 
+   // Function to complete typing immediately
+   const completeTyping = () => {
+     if (isTyping) {
+       typingRef.current.active = false;
+       setIsTyping(false);
+       
+       if (!initComplete) {
+         setInitText(prev => {
+           const currentText = prev;
+           const welcomeMessage = `\nSECURE ACCESS GRANTED\nRETRIEVING DATA FILE: ${pageData.title}\n\n`;
+           return currentText + welcomeMessage;
+         });
+         setInitComplete(true);
+         
+         setDisplayedText(pageData.content);
+         setTextComplete(true);
+         
+         playAudio();
+       } else {
+         setDisplayedText(pageData.content);
+         setTextComplete(true);
+       }
+     }
+   };
+ 
+   // Custom typeText that can be interrupted
+   const customTypeText = (text, setState, callback = null, index = 0, delay = 30) => {
+     setIsTyping(true);
+     typingRef.current.active = true;
+     
+     if (index < text.length && typingRef.current.active) {
+       setState(prev => prev + text[index]);
+       // Play typing sound occasionally
+       if (soundEnabled && Math.random() > 0.95) {
+         AudioManager.playEffect('keypress', 0.05);
+       }
+       setTimeout(() => customTypeText(text, setState, callback, index + 1, delay), delay);
+     } else {
+       if (typingRef.current.active && callback) callback();
+       setIsTyping(false);
+       typingRef.current.active = false;
+     }
+   };
+ 
+   // Event listener for ESC key and mobile touch
+   useEffect(() => {
+     const handleKeyDown = (e) => {
+       if (e.key === "Escape") {
+         setEscPressed(prev => {
+           if (prev === 0 && isTyping) {
+             completeTyping();
+             return 1;
+           } 
+           else if (prev >= 1 || !isTyping) {
+             AudioManager.playEffect('keypress', 0.2);
+             navigate("/");
+             return 0;
+           }
+           return prev;
+         });
+       }
+     };
+     
+     window.addEventListener("keydown", handleKeyDown);
+     return () => {
+       window.removeEventListener("keydown", handleKeyDown);
+     };
+   }, [isTyping, navigate]);
+ 
+   // Auto scroll function
+   useEffect(() => {
+     if (terminalRef.current) {
+       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+     }
+   }, [displayedText, textComplete, initText]);
+ 
+   // Main initialization logic
+   useEffect(() => {
+     if (hasInitialized.current) return;
+     hasInitialized.current = true;
+ 
+     // Play access sound
+     AudioManager.playEffect('access_granted', 0.3);
+     
+     const loadingMessages = [
+       "Establishing secure connection...",
+       "Decrypting data stream...",
+       "Authenticating access credentials...",
+       "Security protocols bypassed."
+     ];
+     
+     let i = 0;
+     const displayNextMessage = () => {
+       if (i < loadingMessages.length && typingRef.current.active) {
+         customTypeText(loadingMessages[i] + "\n", setInitText, () => {
+           setInitText(prev => prev + "\n");
+           i++;
+           displayNextMessage();
+         }, 0, 50);
+       } else if (typingRef.current.active) {
+         const welcomeMessage = 
+           `\nSECURE ACCESS GRANTED\n` +
+           `RETRIEVING DATA FILE: ${pageData.title}\n\n`;
+         customTypeText(welcomeMessage, setInitText, () => {
+           setInitComplete(true);
+           // Play corruption sound for certain pages
+           if (pageId === 'eclipseshard' || pageId === 'blacksite') {
+             AudioManager.playEffect('corruption', 0.2);
+           }
+           customTypeText(pageData.content, setDisplayedText, () => {
+             setTextComplete(true);
+             playAudio();
+           });
+         }, 0, 50);
+       }
+     };
+     
+     typingRef.current.active = true;
+     displayNextMessage();
+     
+     return () => {
+       typingRef.current.active = false;
+       if (audioRef.current) {
+         audioRef.current.pause();
+         audioRef.current.currentTime = 0;
+       }
+     };
+   }, [pageId, pageData.title, pageData.content, pageData.autoPlayAudio, soundEnabled]);
+ 
+   // Rendering for wanted board with images
+   const renderWantedBoard = () => {
+     if (!pageData.showImage || !pageData.targetImages) return null;
+     
+     return (
+       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+         {Object.entries(pageData.targetImages).map(([name, imagePath]) => (
+           <div key={name} className="border border-green-400 p-2">
+             <div className="text-green-400 font-mono text-center mb-2 text-sm sm:text-base">{name}</div>
+             <div className="flex justify-center">
+               <img 
+                 src={imagePath} 
+                 alt={`Wanted: ${name}`} 
+                 className="w-full h-auto max-h-32 sm:max-h-48 object-cover border border-green-400" 
+                 onError={(e) => {
+                   e.target.onerror = null;
+                   e.target.src = "/images/wanted/placeholder.jpg";
+                 }}
+               />
+             </div>
+           </div>
+         ))}
+       </div>
+     );
+   };
+ 
+   return (
+     <div className="flex flex-col items-center min-h-screen bg-black p-4">
+       {/* Sound Toggle Button */}
+       <div className="fixed top-4 left-4 z-50">
+         <Button
+           className="bg-green-400 text-black font-mono px-2 py-1 rounded text-xs hover:bg-green-500"
+           onClick={() => {
+             const isMuted = AudioManager.toggleMute();
+             setSoundEnabled(!isMuted);
+           }}
+         >
+           {soundEnabled ? '🔊' : '🔇'}
+         </Button>
+       </div>
+       
+       {/* Hidden audio element that can autoplay */}
+       {pageData.audioFile && (
+         <audio
+           ref={audioRef}
+           src={pageData.audioFile}
+           loop={false}
+           style={{ display: "none" }}
+         />
+       )}
+       
+       <Card className="w-full max-w-md lg:max-w-lg border-green-400 border-2">
+         <CardContent className="p-4 sm:p-6">
+           <div
+             style={{
+               fontFamily: "monospace",
+               color: "#33ff33",
+               whiteSpace: "pre-wrap",
+               marginBottom: "10px",
+               textAlign: "left",
+               fontSize: "12px",
+               sm: { fontSize: "14px" }
+             }}
+           >
+             {initText}
+             {isTyping && !initComplete && <span className="blinking-cursor">▌</span>}
+           </div>
+           <div 
+             className="terminal overflow-auto terminal-flicker" 
+             ref={terminalRef}
+             style={{ 
+               minHeight: "200px",
+               maxHeight: "60vh",
+               fontSize: "12px",
+               sm: { fontSize: "14px" }
+             }}
+           >
+             <div style={{ whiteSpace: "pre-wrap" }}>
+               {displayedText}
+               {isTyping && initComplete && <span className="blinking-cursor">▌</span>}
+             </div>
+             
+             {/* Render wanted board INSIDE the scrollable terminal */}
+             {textComplete && pageData.showImage && renderWantedBoard()}
+             
+             {/* Visible audio controls (only shown when not auto-playing) */}
+             {pageData.audioFile && textComplete && !pageData.autoPlayAudio && (
+               <audio
+                 controls
+                 style={{
+                   backgroundColor: "black",
+                   border: "1px solid #33ff33",
+                   borderRadius: "5px",
+                   width: "100%",
+                   marginTop: "10px",
+                   color: "#33ff33"
+                 }}
+               >
+                 <source src={pageData.audioFile} type="audio/mp3" />
+                 Your browser does not support the audio element.
+               </audio>
+             )}
+           </div>
+           <div className="mt-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+             <Button 
+               onClick={() => {
+                 AudioManager.playEffect('keypress', 0.2);
+                 navigate("/");
+               }}
+               className="w-full sm:w-auto text-xs sm:text-sm"
+             >
+               RETURN TO MAIN TERMINAL
+             </Button>
+             {/* Mobile-friendly touch prompt */}
+             <div className="text-green-400 text-xs text-center sm:text-right">
+               {isTyping ? (
+                 <>
+                   <span className="hidden sm:inline">Press ESC to skip typing</span>
+                   <span className="sm:hidden" onClick={completeTyping}>Tap here to skip typing</span>
+                 </>
+               ) : (
+                 <>
+                   <span className="hidden sm:inline">Press ESC to return</span>
+                   <span className="sm:hidden">Tap button to return</span>
+                 </>
+               )}
+             </div>
+           </div>
+         </CardContent>
+       </Card>
+     </div>
+   );
+ }

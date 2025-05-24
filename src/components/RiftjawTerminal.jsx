@@ -3,6 +3,8 @@ import { Card, CardContent } from "../ui/Card";
 import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import AudioManager from '../utils/AudioManager';
 
 // Authentication levels data - SIMPLE structure
 const authLevels = [
@@ -100,51 +102,81 @@ Remember: Something perfect behind the eye made us what we are today. Do not squ
 
 [END OF ARCHIVE]`;
 
-export default function RiftjawTerminal({ onBack }) {
-  const [currentLevel, setCurrentLevel] = useState(0); // 0-3 for levels 1-4
+export default function RiftjawTerminal() {
+  const navigate = useNavigate();
+  const [currentLevel, setCurrentLevel] = useState(0);
   const [passwordInput, setPasswordInput] = useState("");
   const [passwordAttempts, setPasswordAttempts] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [showFinalArchive, setShowFinalArchive] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [soundEnabled, setSoundEnabled] = useState(true);
+
+  // Initialize audio
+  useEffect(() => {
+    AudioManager.preloadSounds();
+    // Play mysterious ambient sound for ancient terminal
+    AudioManager.playAmbient('secure', 0.2);
+    
+    return () => {
+      AudioManager.stopAmbient();
+    };
+  }, []);
+
+  // Play typing sound effect
+  const playKeySound = () => {
+    if (soundEnabled && Math.random() > 0.5) {
+      AudioManager.playEffect('keypress', 0.1);
+    }
+  };
 
   const handlePasswordSubmit = () => {
     const level = authLevels[currentLevel];
-    console.log("Checking password:", passwordInput, "against:", level.password);
     
     if (passwordInput === level.password) {
       // Correct password
+      AudioManager.playEffect('access_granted', 0.4);
       setShowSuccess(true);
       setSuccessMessage(level.successMessage);
       setPasswordInput("");
       setPasswordAttempts(0);
       setErrorMessage("");
       
+      // Play level progression sound
+      if (currentLevel < authLevels.length - 1) {
+        AudioManager.playEffect('corruption', 0.2);
+      } else {
+        // Final level - play special sound
+        AudioManager.playEffect('glitch', 0.3);
+      }
+      
       // Auto-advance after 2 seconds
       setTimeout(() => {
-        setShowSuccess(false); // IMPORTANT: Reset success state
+        setShowSuccess(false);
         setSuccessMessage("");
         
         if (currentLevel < authLevels.length - 1) {
-          // Move to next level
           setCurrentLevel(currentLevel + 1);
         } else {
-          // Show final archive
           setShowFinalArchive(true);
+          // Change ambient to more intense
+          AudioManager.playAmbient('corrupted', 0.3);
         }
       }, 2000);
     } else {
       // Wrong password
+      AudioManager.playEffect('access_denied', 0.4);
       const attempts = passwordAttempts + 1;
       setPasswordAttempts(attempts);
       setPasswordInput("");
       
       if (attempts >= 3) {
         // Max attempts reached
+        AudioManager.playEffect('warning', 0.5);
         setErrorMessage("Maximum attempts exceeded. Access denied.");
         setTimeout(() => {
-          onBack();
+          navigate("/");
         }, 2000);
       } else {
         // Show failure message
@@ -156,20 +188,44 @@ export default function RiftjawTerminal({ onBack }) {
   // Show final archive
   if (showFinalArchive) {
     return (
-      <div className="flex flex-col items-center h-screen bg-black">
-        <Card className="w-full max-w-md border-green-400 border-2">
-          <CardContent>
+      <div className="flex flex-col items-center min-h-screen bg-black p-4">
+        {/* Sound Toggle */}
+        <div className="fixed top-4 left-4 z-50">
+          <Button
+            className="bg-green-400 text-black font-mono px-2 py-1 rounded text-xs hover:bg-green-500"
+            onClick={() => {
+              const isMuted = AudioManager.toggleMute();
+              setSoundEnabled(!isMuted);
+            }}
+          >
+            {soundEnabled ? '🔊' : '🔇'}
+          </Button>
+        </div>
+        
+        <Card className="w-full max-w-md lg:max-w-lg border-green-400 border-2">
+          <CardContent className="p-4 sm:p-6">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
               <div 
-                className="terminal terminal-flicker"
-                style={{ overflow: "auto", height: "400px", position: "relative" }}
+                className="terminal terminal-flicker terminal-scanlines"
+                style={{ 
+                  overflow: "auto", 
+                  minHeight: "300px",
+                  maxHeight: "70vh",
+                  position: "relative",
+                  fontSize: "11px",
+                  sm: { fontSize: "12px" },
+                  lg: { fontSize: "14px" }
+                }}
               >
-                <div style={{ whiteSpace: "pre-wrap", marginBottom: "10px", fontSize: "12px" }}>
+                <div style={{ whiteSpace: "pre-wrap", marginBottom: "10px" }}>
                   {finalArchive}
                 </div>
                 <Button
-                  className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500 mt-2"
-                  onClick={onBack}
+                  className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500 mt-2 w-full sm:w-auto"
+                  onClick={() => {
+                    AudioManager.playEffect('keypress', 0.2);
+                    navigate("/");
+                  }}
                 >
                   Back to Terminal
                 </Button>
@@ -184,13 +240,19 @@ export default function RiftjawTerminal({ onBack }) {
   // Show success message
   if (showSuccess) {
     return (
-      <div className="flex flex-col items-center h-screen bg-black">
-        <Card className="w-full max-w-md border-green-400 border-2">
-          <CardContent>
+      <div className="flex flex-col items-center min-h-screen bg-black p-4">
+        <Card className="w-full max-w-md lg:max-w-lg border-green-400 border-2">
+          <CardContent className="p-4 sm:p-6">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
               <div 
                 className="terminal terminal-flicker"
-                style={{ overflow: "auto", height: "300px", position: "relative" }}
+                style={{ 
+                  overflow: "auto", 
+                  height: "200px", 
+                  position: "relative",
+                  fontSize: "12px",
+                  sm: { fontSize: "14px" }
+                }}
               >
                 <div style={{ whiteSpace: "pre-wrap", marginBottom: "10px" }}>
                   {successMessage}
@@ -203,17 +265,36 @@ export default function RiftjawTerminal({ onBack }) {
     );
   }
 
-  // Main authentication screen - SIMPLE, everything on one screen
+  // Main authentication screen
   const currentLevelData = authLevels[currentLevel];
   
   return (
-    <div className="flex flex-col items-center h-screen bg-black">
-      <Card className="w-full max-w-md border-green-400 border-2">
-        <CardContent>
+    <div className="flex flex-col items-center min-h-screen bg-black p-4">
+      {/* Sound Toggle */}
+      <div className="fixed top-4 left-4 z-50">
+        <Button
+          className="bg-green-400 text-black font-mono px-2 py-1 rounded text-xs hover:bg-green-500"
+          onClick={() => {
+            const isMuted = AudioManager.toggleMute();
+            setSoundEnabled(!isMuted);
+          }}
+        >
+          {soundEnabled ? '🔊' : '🔇'}
+        </Button>
+      </div>
+      
+      <Card className="w-full max-w-md lg:max-w-lg border-green-400 border-2">
+        <CardContent className="p-4 sm:p-6">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
             <div 
               className="terminal terminal-flicker"
-              style={{ overflow: "auto", height: "300px", position: "relative" }}
+              style={{ 
+                overflow: "auto", 
+                minHeight: "250px",
+                position: "relative",
+                fontSize: "12px",
+                sm: { fontSize: "14px" }
+              }}
             >
               {/* Level content */}
               <div style={{ whiteSpace: "pre-wrap", marginBottom: "15px" }}>
@@ -226,11 +307,6 @@ export default function RiftjawTerminal({ onBack }) {
                 {currentLevelData.content}
               </div>
               
-              {/* Debug info */}
-              <div style={{ fontSize: '10px', color: '#666', marginBottom: '10px' }}>
-                DEBUG: Level {currentLevel + 1}, Attempts: {passwordAttempts}/3, showSuccess: {showSuccess.toString()}, showFinalArchive: {showFinalArchive.toString()}
-              </div>
-              
               {/* Error message */}
               {errorMessage && (
                 <div style={{ color: '#ff6666', marginBottom: '10px', whiteSpace: 'pre-wrap' }}>
@@ -238,14 +314,17 @@ export default function RiftjawTerminal({ onBack }) {
                 </div>
               )}
               
-              {/* Password input - ALWAYS VISIBLE */}
+              {/* Password input */}
               <div className="mt-2">
                 <div style={{ marginBottom: '5px' }}>Enter Level {currentLevel + 1} Passphrase:</div>
                 <Input
-                  className="bg-black text-green-400 border border-green-400 px-3 py-2 font-mono focus:outline-none"
+                  className="bg-black text-green-400 border border-green-400 px-3 py-2 font-mono focus:outline-none w-full"
                   placeholder="Enter Passphrase"
                   value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
+                  onChange={(e) => {
+                    playKeySound();
+                    setPasswordInput(e.target.value);
+                  }}
                   type="password"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
@@ -253,16 +332,22 @@ export default function RiftjawTerminal({ onBack }) {
                     }
                   }}
                 />
-                <div className="flex gap-2 mt-2">
+                <div className="flex flex-col sm:flex-row gap-2 mt-2">
                   <Button
-                    className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500"
-                    onClick={handlePasswordSubmit}
+                    className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500 w-full sm:w-auto"
+                    onClick={() => {
+                      AudioManager.playEffect('keypress', 0.2);
+                      handlePasswordSubmit();
+                    }}
                   >
                     Submit
                   </Button>
                   <Button
-                    className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500"
-                    onClick={onBack}
+                    className="bg-green-400 text-black font-mono px-4 py-2 rounded hover:bg-green-500 w-full sm:w-auto"
+                    onClick={() => {
+                      AudioManager.playEffect('keypress', 0.2);
+                      navigate("/");
+                    }}
                   >
                     Back
                   </Button>
