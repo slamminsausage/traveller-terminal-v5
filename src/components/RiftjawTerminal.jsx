@@ -67,7 +67,7 @@ const finalArchive = `RIFTJAW DEEP CORE ARCHIVE
 Date: Approx. 20,000 Standard Years Ago  
 Author: D. Kephar, Systems Architect – Builder Collective
 
-[Translation from Ancient Dialect – Accuracy: 97.3%]
+[Translation from Builder Dialect – Accuracy: 97.3%]
 
 To whomever finds this record:
 
@@ -77,7 +77,9 @@ What your people call "Riftjaw" is not a beast. It is not alive. But it was made
 
 == HISTORICAL CONTEXT ==
 
-Roughly 23,000 years ago, the fragment fell. We were not prepared. It collapsed networks, twisted neural code, and whispered into minds. It was not meant to be here.
+Roughly 2 years ago, the fragment fell. We were not prepared. It collapsed networks, twisted neural code, and whispered into minds. It was not meant to be here.
+
+It doesn't happen immediately, it takes time and we don't know what it really is....
 
 We identified it as a dimensional interface—energy beyond spectrum or limit, possibly sentient. It could not be destroyed. So we built something to hold it.
 
@@ -95,7 +97,10 @@ We called it the RIFTJAW Core (Resonant Integration Field & Temporal-Josephson A
 
 - MONITORING NODES – Self-regulating sensor hives that adjust environmental controls and isolate field distortions.
 
-Over time, the system fell silent. The hum became background. The containment stabilized. The city that grew above it never knew what slept beneath.
+- ELECTROMAGNETIC SECURITY FIELD – Self-sustaining Electromagnetic containment field tuned exactly to the frequency of the Shard. Allows for passage to and from the Rim only with the Shard. 
+Otherwise complete electrical failure of any device.
+
+- OUTER SECURITY MEASURES – TL 15 security system stopping any intruders without Builder genetics, proper access codes, or the Shard itself.
 
 ---
 
@@ -109,6 +114,7 @@ What we know:
 - Alters time perception  
 - Enhances psionic fields and cognitive reaction  
 - Appears to record intent, not just action
+- We know there is more to discover and working diligently to discover The Eclipse Shards secrets
 
 Containment was mandatory. Interaction was reckless. But eventually, someone always wants more.
 

@@ -417,159 +417,218 @@ export default function HiddenPage() {
       };
     }, [pageId, pageData.title, pageData.content, pageData.autoPlayAudio, soundEnabled]);
   
-       // Rendering for wanted board with images - IMPROVED FOR MOBILE
-    const renderWantedBoard = () => {
-      if (!pageData.showImage || !pageData.targetImages) return null;
-      
-      return (
-        <div className="mt-4">
-          <div className="pt-4">
-            <div className="space-y-4">
-              {Object.entries(pageData.targetImages).map(([name, imagePath]) => {
-                const targetInfo = pageData.targetData && pageData.targetData[name];
-                
-                return (
-                  <div key={name} className="border border-green-400 p-2">
-                    <div className="text-green-400 font-mono text-xs mb-2">
-                      TARGET #{Object.keys(pageData.targetImages).indexOf(name) + 1}: "{name}"
-                    </div>
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <div className="w-full sm:w-1/3">
-                        <img 
-                          src={imagePath} 
-                          alt={`Wanted: ${name}`} 
-                          className="w-full h-32 sm:h-40 object-cover border border-green-400" 
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = "/images/wanted/placeholder.jpg";
-                          }}
-                        />
-                      </div>
-                      <div className="w-full sm:w-2/3 text-green-400 font-mono text-xs space-y-1">
-                        {targetInfo && (
-                          <>
-                            <div><span className="text-green-300">SPECIES:</span> {targetInfo.species}</div>
-                            <div><span className="text-green-300">DESCRIPTION:</span> {targetInfo.description}</div>
-                            <div><span className="text-green-300">KNOWN SKILLS:</span> {targetInfo.skills}</div>
-                            <div><span className="text-green-300">THREAT LEVEL:</span> <span className={targetInfo.threat === 'EXTREME' ? 'text-red-400' : 'text-yellow-400'}>{targetInfo.threat}</span></div>
-                            <div><span className="text-green-300">CAUTION:</span> {targetInfo.caution}</div>
-                            <div><span className="text-green-300">LAST KNOWN:</span> {targetInfo.location}</div>
-                            <div><span className="text-green-300">NOTES:</span> {targetInfo.notes}</div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            
-            {/* Additional Information Section */}
-            {pageData.additionalInfo && (
-              <div className="mt-6 border border-green-400 p-3 text-green-400 font-mono text-xs">
-                <pre className="whitespace-pre-wrap">{pageData.additionalInfo}</pre>
-              </div>
-            )}
-          </div>
-        </div>
-      );
-    };
+// Rendering for wanted board with images - MOBILE-FIRST DESIGN
+const renderWantedBoard = () => {
+  if (!pageData.showImage || !pageData.targetImages) return null;
   
-    return (
-      <div className="flex flex-col items-center min-h-screen bg-black p-2 sm:p-4">
-        {/* Sound Toggle Button */}
-        <div className="fixed top-2 left-2 z-50">
-          <Button
-            className="bg-green-400 text-black font-mono px-2 py-1 rounded text-xs hover:bg-green-500"
-            onClick={() => {
-              const isMuted = AudioManager.toggleMute();
-              setSoundEnabled(!isMuted);
-            }}
-          >
-            {soundEnabled ? '🔊' : '🔇'}
-          </Button>
-        </div>
-        
-        {/* Hidden audio element that can autoplay */}
-        {pageData.audioFile && (
-          <audio
-            ref={audioRef}
-            src={pageData.audioFile}
-            loop={false}
-            style={{ display: "none" }}
-          />
-        )}
-        
-        <div className="w-full max-w-lg flex flex-col" style={{ maxHeight: '100vh' }}>
-          <Card className="border-green-400 border-2 flex-1 flex flex-col">
-            <CardContent className="p-3 sm:p-4 flex flex-col h-full">
-              {/* Combined terminal content - all inside the card */}
-              <div 
-                className="terminal overflow-y-auto flex-1 terminal-flicker" 
-                ref={terminalRef}
-                style={{ 
-                  fontSize: "11px",
-                  minHeight: "200px"
-                }}
-              >
-                {/* Init text now inside the terminal */}
-                {initText && (
-                  <div className="text-green-400 font-mono whitespace-pre-wrap mb-2">
-                    {initText}
-                    {isTyping && !initComplete && <span className="blinking-cursor">▌</span>}
-                  </div>
-                )}
-                
-                <div style={{ whiteSpace: "pre-wrap" }}>
-                  {displayedText}
-                  {isTyping && initComplete && <span className="blinking-cursor">▌</span>}
-                </div>
-                
-                {/* Render wanted board with better mobile layout */}
-                {textComplete && pageData.showImage && renderWantedBoard()}
-                
-                {/* Visible audio controls (only shown when not auto-playing) */}
-                {pageData.audioFile && textComplete && !pageData.autoPlayAudio && (
-                  <audio
-                    controls
-                    className="w-full mt-4"
-                    style={{
-                      backgroundColor: "black",
-                      border: "1px solid #33ff33",
-                      borderRadius: "5px"
-                    }}
-                  >
-                    <source src={pageData.audioFile} type="audio/mp3" />
-                    Your browser does not support the audio element.
-                  </audio>
-                )}
+  return (
+    <div className="mt-6">
+      {/* Header */}
+      <div className="text-green-400 font-mono text-sm sm:text-base mb-4 text-center border-b border-green-400 pb-2">
+        ▀▀▀ HIGH-VALUE TARGETS ▀▀▀
+      </div>
+      
+      {/* Target Cards - Stack on mobile, grid on larger screens */}
+      <div className="space-y-6 sm:space-y-8">
+        {Object.entries(pageData.targetImages).map(([name, imagePath], index) => {
+          const targetInfo = pageData.targetData && pageData.targetData[name];
+          
+          return (
+            <div key={name} className="border border-green-400 bg-black">
+              {/* Target Header */}
+              <div className="bg-green-400 text-black font-mono text-sm sm:text-base p-2 font-bold">
+                TARGET #{index + 1}: "{name}"
               </div>
               
-              {/* Button section */}
-              <div className="mt-3 flex flex-col sm:flex-row justify-between items-center gap-2">
-                <Button 
-                  onClick={() => {
-                    AudioManager.playEffect('keypress', 0.2);
-                    navigate("/");
-                  }}
-                  className="w-full sm:w-auto text-xs"
-                >
-                  RETURN TO MAIN TERMINAL
-                </Button>
-                {/* Mobile-friendly touch prompt */}
-                <div className="text-green-400 text-xs text-center sm:text-right">
-                  {isTyping ? (
-                    <span onClick={completeTyping} className="cursor-pointer">
-                      Tap to skip typing
-                    </span>
-                  ) : (
-                    <span>Tap button to return</span>
-                  )}
+              {/* Content - Stack on mobile */}
+              <div className="p-3 sm:p-4">
+                {/* Image Section */}
+                <div className="mb-4">
+                  <img 
+                    src={imagePath} 
+                    alt={`Wanted: ${name}`} 
+                    className="w-full max-w-[200px] mx-auto h-auto border-2 border-green-400" 
+                    style={{ imageRendering: 'pixelated' }}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/images/wanted/placeholder.jpg";
+                    }}
+                  />
                 </div>
+                
+                {/* Info Section - Better mobile typography */}
+                {targetInfo && (
+                  <div className="space-y-2 text-green-400 font-mono">
+                    {/* Critical Info - Larger on mobile */}
+                    <div className="text-sm sm:text-base mb-3">
+                      <div className="mb-1">
+                        <span className="text-green-300">THREAT:</span>{' '}
+                        <span className={`font-bold ${
+                          targetInfo.threat === 'EXTREME' ? 'text-red-400 animate-pulse' : 
+                          targetInfo.threat === 'HIGH' ? 'text-yellow-400' : 
+                          'text-green-400'
+                        }`}>
+                          {targetInfo.threat}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-green-300">BOUNTY:</span>{' '}
+                        <span className="text-yellow-400 font-bold">50,000 CR</span>
+                      </div>
+                    </div>
+                    
+                    {/* Detailed Info - Collapsible on mobile */}
+                    <details className="border-t border-green-400 pt-2">
+                      <summary className="cursor-pointer text-sm font-bold mb-2">
+                        FULL INTELLIGENCE REPORT ▼
+                      </summary>
+                      <div className="space-y-2 text-xs sm:text-sm">
+                        <div>
+                          <span className="text-green-300 font-bold block">SPECIES:</span>
+                          {targetInfo.species}
+                        </div>
+                        <div>
+                          <span className="text-green-300 font-bold block">DESCRIPTION:</span>
+                          {targetInfo.description}
+                        </div>
+                        <div>
+                          <span className="text-green-300 font-bold block">SKILLS:</span>
+                          {targetInfo.skills}
+                        </div>
+                        <div>
+                          <span className="text-green-300 font-bold block">⚠️ CAUTION:</span>
+                          <span className="text-yellow-300">{targetInfo.caution}</span>
+                        </div>
+                        <div>
+                          <span className="text-green-300 font-bold block">LAST KNOWN:</span>
+                          {targetInfo.location}
+                        </div>
+                        <div>
+                          <span className="text-green-300 font-bold block">FIELD NOTES:</span>
+                          <span className="italic">{targetInfo.notes}</span>
+                        </div>
+                      </div>
+                    </details>
+                  </div>
+                )}
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          );
+        })}
       </div>
-    )
-  };
+      
+      {/* Additional Information Section - Better formatted */}
+      {pageData.additionalInfo && (
+        <div className="mt-8 border-2 border-green-400 bg-black">
+          <div className="bg-green-400 text-black font-mono text-sm p-2 font-bold">
+            ▀▀▀ OPERATIONAL INTELLIGENCE ▀▀▀
+          </div>
+          <div className="p-3 text-green-400 font-mono text-xs sm:text-sm">
+            <pre className="whitespace-pre-wrap">{pageData.additionalInfo}</pre>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+  
+return (
+  <div className="flex flex-col items-center min-h-screen bg-black p-2 sm:p-4">
+    {/* Sound Toggle Button */}
+    <div className="fixed top-2 left-2 z-50">
+      <Button
+        className="bg-green-400 text-black font-mono px-2 py-1 rounded text-xs hover:bg-green-500"
+        onClick={() => {
+          const isMuted = AudioManager.toggleMute();
+          setSoundEnabled(!isMuted);
+        }}
+      >
+        {soundEnabled ? '🔊' : '🔇'}
+      </Button>
+    </div>
+    
+    {/* Hidden audio element */}
+    {pageData.audioFile && (
+      <audio
+        ref={audioRef}
+        src={pageData.audioFile}
+        loop={false}
+        style={{ display: "none" }}
+      />
+    )}
+    
+    <div className="w-full max-w-2xl"> {/* Increased max width for better desktop viewing */}
+      <Card className="border-green-400 border-2">
+        <CardContent className="p-2 sm:p-4"> {/* Reduced padding on mobile */}
+          {/* Terminal content */}
+          <div 
+            className="terminal overflow-y-auto terminal-flicker" 
+            ref={terminalRef}
+            style={{ 
+              fontSize: "12px", // Slightly larger base font
+              minHeight: "300px",
+              maxHeight: "calc(100vh - 120px)" // Dynamic height based on viewport
+            }}
+          >
+            {/* Init text */}
+            {initText && (
+              <div className="text-green-400 font-mono whitespace-pre-wrap mb-2">
+                {initText}
+                {isTyping && !initComplete && <span className="blinking-cursor">▌</span>}
+              </div>
+            )}
+            
+            {/* Main content */}
+            <div style={{ whiteSpace: "pre-wrap" }}>
+              {displayedText}
+              {isTyping && initComplete && <span className="blinking-cursor">▌</span>}
+            </div>
+            
+            {/* Wanted board */}
+            {textComplete && pageData.showImage && renderWantedBoard()}
+            
+            {/* Audio controls */}
+            {pageData.audioFile && textComplete && !pageData.autoPlayAudio && (
+              <audio
+                controls
+                className="w-full mt-4"
+                style={{
+                  backgroundColor: "black",
+                  border: "1px solid #33ff33",
+                  borderRadius: "5px"
+                }}
+              >
+                <source src={pageData.audioFile} type="audio/mp3" />
+                Your browser does not support the audio element.
+              </audio>
+            )}
+          </div>
+          
+          {/* Button section - Sticky at bottom */}
+          <div className="mt-3 pt-3 border-t border-green-400 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <Button 
+              onClick={() => {
+                AudioManager.playEffect('keypress', 0.2);
+                navigate("/");
+              }}
+              className="w-full sm:w-auto text-xs sm:text-sm"
+            >
+              RETURN TO MAIN TERMINAL
+            </Button>
+            {/* Touch prompt */}
+            <div className="text-green-400 text-xs sm:text-sm text-center sm:text-right">
+              {isTyping ? (
+                <span onClick={completeTyping} className="cursor-pointer underline">
+                  Tap to skip typing
+                </span>
+              ) : (
+                <span className="opacity-75">ESC or tap button to return</span>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+);
+}
