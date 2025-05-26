@@ -417,38 +417,36 @@ export default function HiddenPage() {
       };
     }, [pageId, pageData.title, pageData.content, pageData.autoPlayAudio, soundEnabled]);
   
-// Rendering for wanted board with images - MOBILE-FIRST DESIGN
+// Rendering for wanted board with images - CONTAINED WITHIN VIEWPORT
 const renderWantedBoard = () => {
   if (!pageData.showImage || !pageData.targetImages) return null;
   
   return (
-    <div className="mt-6">
-      {/* Header */}
-      <div className="text-green-400 font-mono text-sm sm:text-base mb-4 text-center border-b border-green-400 pb-2">
+    <div className="mt-4 w-full">
+      <div className="text-green-400 font-mono text-xs mb-2 text-center">
         ▀▀▀ HIGH-VALUE TARGETS ▀▀▀
       </div>
       
-      {/* Target Cards - Stack on mobile, grid on larger screens */}
-      <div className="space-y-6 sm:space-y-8">
+      {/* Target Cards - Fully contained */}
+      <div className="space-y-4 w-full">
         {Object.entries(pageData.targetImages).map(([name, imagePath], index) => {
           const targetInfo = pageData.targetData && pageData.targetData[name];
           
           return (
-            <div key={name} className="border border-green-400 bg-black">
+            <div key={name} className="border border-green-400 bg-black w-full overflow-hidden">
               {/* Target Header */}
-              <div className="bg-green-400 text-black font-mono text-sm sm:text-base p-2 font-bold">
+              <div className="bg-green-400 text-black font-mono text-xs p-1 font-bold">
                 TARGET #{index + 1}: "{name}"
               </div>
               
-              {/* Content - Stack on mobile */}
-              <div className="p-3 sm:p-4">
-                {/* Image Section */}
-                <div className="mb-4">
+              {/* Content - Horizontal layout to save space */}
+              <div className="p-2 flex gap-2">
+                {/* Small Image */}
+                <div className="flex-shrink-0">
                   <img 
                     src={imagePath} 
                     alt={`Wanted: ${name}`} 
-                    className="w-full max-w-[200px] mx-auto h-auto border-2 border-green-400" 
-                    style={{ imageRendering: 'pixelated' }}
+                    className="w-16 h-16 object-cover border border-green-400" 
                     onError={(e) => {
                       e.target.onerror = null;
                       e.target.src = "/images/wanted/placeholder.jpg";
@@ -456,15 +454,14 @@ const renderWantedBoard = () => {
                   />
                 </div>
                 
-                {/* Info Section - Better mobile typography */}
+                {/* Info Section - Compressed */}
                 {targetInfo && (
-                  <div className="space-y-2 text-green-400 font-mono">
-                    {/* Critical Info - Larger on mobile */}
-                    <div className="text-sm sm:text-base mb-3">
-                      <div className="mb-1">
+                  <div className="flex-1 text-green-400 font-mono text-xs overflow-hidden">
+                    <div className="space-y-1">
+                      <div>
                         <span className="text-green-300">THREAT:</span>{' '}
                         <span className={`font-bold ${
-                          targetInfo.threat === 'EXTREME' ? 'text-red-400 animate-pulse' : 
+                          targetInfo.threat === 'EXTREME' ? 'text-red-400' : 
                           targetInfo.threat === 'HIGH' ? 'text-yellow-400' : 
                           'text-green-400'
                         }`}>
@@ -472,43 +469,20 @@ const renderWantedBoard = () => {
                         </span>
                       </div>
                       <div>
-                        <span className="text-green-300">BOUNTY:</span>{' '}
-                        <span className="text-yellow-400 font-bold">50,000 CR</span>
+                        <span className="text-green-300">SPECIES:</span> {targetInfo.species}
                       </div>
+                      <div className="truncate">
+                        <span className="text-green-300">SKILLS:</span> {targetInfo.skills}
+                      </div>
+                      <details>
+                        <summary className="cursor-pointer text-yellow-400">MORE INFO ▼</summary>
+                        <div className="mt-1 space-y-1">
+                          <div className="break-words">{targetInfo.description}</div>
+                          <div className="break-words text-yellow-300">⚠️ {targetInfo.caution}</div>
+                          <div className="break-words italic">{targetInfo.notes}</div>
+                        </div>
+                      </details>
                     </div>
-                    
-                    {/* Detailed Info - Collapsible on mobile */}
-                    <details className="border-t border-green-400 pt-2">
-                      <summary className="cursor-pointer text-sm font-bold mb-2">
-                        FULL INTELLIGENCE REPORT ▼
-                      </summary>
-                      <div className="space-y-2 text-xs sm:text-sm">
-                        <div>
-                          <span className="text-green-300 font-bold block">SPECIES:</span>
-                          {targetInfo.species}
-                        </div>
-                        <div>
-                          <span className="text-green-300 font-bold block">DESCRIPTION:</span>
-                          {targetInfo.description}
-                        </div>
-                        <div>
-                          <span className="text-green-300 font-bold block">SKILLS:</span>
-                          {targetInfo.skills}
-                        </div>
-                        <div>
-                          <span className="text-green-300 font-bold block">⚠️ CAUTION:</span>
-                          <span className="text-yellow-300">{targetInfo.caution}</span>
-                        </div>
-                        <div>
-                          <span className="text-green-300 font-bold block">LAST KNOWN:</span>
-                          {targetInfo.location}
-                        </div>
-                        <div>
-                          <span className="text-green-300 font-bold block">FIELD NOTES:</span>
-                          <span className="italic">{targetInfo.notes}</span>
-                        </div>
-                      </div>
-                    </details>
                   </div>
                 )}
               </div>
@@ -517,25 +491,26 @@ const renderWantedBoard = () => {
         })}
       </div>
       
-      {/* Additional Information Section - Better formatted */}
+      {/* Additional Information */}
       {pageData.additionalInfo && (
-        <div className="mt-8 border-2 border-green-400 bg-black">
-          <div className="bg-green-400 text-black font-mono text-sm p-2 font-bold">
+        <details className="mt-4 border border-green-400 p-2">
+          <summary className="cursor-pointer text-green-400 font-mono text-xs font-bold">
             ▀▀▀ OPERATIONAL INTELLIGENCE ▀▀▀
+          </summary>
+          <div className="mt-2 text-green-400 font-mono text-xs">
+            <pre className="whitespace-pre-wrap break-words">{pageData.additionalInfo}</pre>
           </div>
-          <div className="p-3 text-green-400 font-mono text-xs sm:text-sm">
-            <pre className="whitespace-pre-wrap">{pageData.additionalInfo}</pre>
-          </div>
-        </div>
+        </details>
       )}
     </div>
   );
 };
   
+// Updated main return with better container constraints
 return (
-  <div className="flex flex-col items-center min-h-screen bg-black p-2 sm:p-4">
+  <div className="fixed inset-0 flex flex-col bg-black">
     {/* Sound Toggle Button */}
-    <div className="fixed top-2 left-2 z-50">
+    <div className="absolute top-2 left-2 z-50">
       <Button
         className="bg-green-400 text-black font-mono px-2 py-1 rounded text-xs hover:bg-green-500"
         onClick={() => {
@@ -557,77 +532,80 @@ return (
       />
     )}
     
-    <div className="w-full max-w-2xl"> {/* Increased max width for better desktop viewing */}
-      <Card className="border-green-400 border-2">
-        <CardContent className="p-2 sm:p-4"> {/* Reduced padding on mobile */}
-          {/* Terminal content */}
-          <div 
-            className="terminal overflow-y-auto terminal-flicker" 
-            ref={terminalRef}
-            style={{ 
-              fontSize: "12px", // Slightly larger base font
-              minHeight: "300px",
-              maxHeight: "calc(100vh - 120px)" // Dynamic height based on viewport
-            }}
-          >
-            {/* Init text */}
-            {initText && (
-              <div className="text-green-400 font-mono whitespace-pre-wrap mb-2">
-                {initText}
-                {isTyping && !initComplete && <span className="blinking-cursor">▌</span>}
-              </div>
-            )}
-            
-            {/* Main content */}
-            <div style={{ whiteSpace: "pre-wrap" }}>
-              {displayedText}
-              {isTyping && initComplete && <span className="blinking-cursor">▌</span>}
-            </div>
-            
-            {/* Wanted board */}
-            {textComplete && pageData.showImage && renderWantedBoard()}
-            
-            {/* Audio controls */}
-            {pageData.audioFile && textComplete && !pageData.autoPlayAudio && (
-              <audio
-                controls
-                className="w-full mt-4"
-                style={{
-                  backgroundColor: "black",
-                  border: "1px solid #33ff33",
-                  borderRadius: "5px"
-                }}
-              >
-                <source src={pageData.audioFile} type="audio/mp3" />
-                Your browser does not support the audio element.
-              </audio>
-            )}
-          </div>
-          
-          {/* Button section - Sticky at bottom */}
-          <div className="mt-3 pt-3 border-t border-green-400 flex flex-col sm:flex-row justify-between items-center gap-2">
-            <Button 
-              onClick={() => {
-                AudioManager.playEffect('keypress', 0.2);
-                navigate("/");
+    {/* Main container - constrained to viewport */}
+    <div className="flex-1 overflow-hidden flex items-center justify-center p-2">
+      <div className="w-full h-full max-w-lg flex flex-col">
+        <Card className="border-green-400 border-2 flex-1 overflow-hidden flex flex-col">
+          <CardContent className="p-2 flex-1 overflow-hidden flex flex-col">
+            {/* Scrollable terminal content */}
+            <div 
+              className="terminal overflow-y-auto overflow-x-hidden flex-1 terminal-flicker" 
+              ref={terminalRef}
+              style={{ 
+                fontSize: "11px",
+                WebkitOverflowScrolling: 'touch' // Better mobile scrolling
               }}
-              className="w-full sm:w-auto text-xs sm:text-sm"
             >
-              RETURN TO MAIN TERMINAL
-            </Button>
-            {/* Touch prompt */}
-            <div className="text-green-400 text-xs sm:text-sm text-center sm:text-right">
-              {isTyping ? (
-                <span onClick={completeTyping} className="cursor-pointer underline">
-                  Tap to skip typing
-                </span>
-              ) : (
-                <span className="opacity-75">ESC or tap button to return</span>
+              {/* Init text */}
+              {initText && (
+                <div className="text-green-400 font-mono whitespace-pre-wrap mb-2">
+                  {initText}
+                  {isTyping && !initComplete && <span className="blinking-cursor">▌</span>}
+                </div>
+              )}
+              
+              {/* Main content */}
+              <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                {displayedText}
+                {isTyping && initComplete && <span className="blinking-cursor">▌</span>}
+              </div>
+              
+              {/* Wanted board */}
+              {textComplete && pageData.showImage && renderWantedBoard()}
+              
+              {/* Audio controls */}
+              {pageData.audioFile && textComplete && !pageData.autoPlayAudio && (
+                <audio
+                  controls
+                  className="w-full mt-4"
+                  style={{
+                    backgroundColor: "black",
+                    border: "1px solid #33ff33",
+                    borderRadius: "5px"
+                  }}
+                >
+                  <source src={pageData.audioFile} type="audio/mp3" />
+                  Your browser does not support the audio element.
+                </audio>
               )}
             </div>
-          </div>
-        </CardContent>
-      </Card>
+            
+            {/* Button section - Fixed at bottom */}
+            <div className="mt-2 pt-2 border-t border-green-400 flex-shrink-0">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
+                <Button 
+                  onClick={() => {
+                    AudioManager.playEffect('keypress', 0.2);
+                    navigate("/");
+                  }}
+                  className="w-full sm:w-auto text-xs"
+                >
+                  RETURN TO MAIN TERMINAL
+                </Button>
+                <div className="text-green-400 text-xs text-center sm:text-right">
+                  {isTyping ? (
+                    <span onClick={completeTyping} className="cursor-pointer underline">
+                      Tap to skip
+                    </span>
+                  ) : (
+                    <span className="opacity-75">ESC to return</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   </div>
 );
