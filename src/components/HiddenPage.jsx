@@ -161,68 +161,67 @@ THE SCALE WILL BREAK`,
     ambientType: 'normal'
   },
   "wantedboard": {
-    title: "BLACK WEB WANTED BOARD - PRIORITY TARGETS",
+    title: "BLACK WEB WANTED BOARD",
     content: `XENO-DARKNET SECURE ACCESS POINT
 VERIFICATION: COMPLETE
 DISPLAYING: HIGH-VALUE TARGET LIST
 
-▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
-
 TARGET DESIGNATION: VANAGANDR CREW
 BOUNTY STATUS: ACTIVE - 50,000 CREDITS PER HEAD (ALIVE PREFERRED)
 PRIORITY: MAXIMUM
-THREAT ASSESSMENT: EXTREME CAUTION ADVISED
-
-▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
-
-TARGET #1: "KNUCK"
-SPECIES: HUMAN
-DESCRIPTION: Male, approximate age 35-40, muscular build, extensive technical expertise
-KNOWN SKILLS: Electronics specialist, security systems expert, exceptional hacking abilities
-THREAT LEVEL: HIGH
-CAUTION: Extremely resourceful with improvised weapons and security countermeasures
-LAST KNOWN LOCATION: Eternium Starport, Brendis-7
-NOTES: Target demonstrates tactical thinking and will prioritize electronic warfare. Approaches from multiple angles and understands surveillance technologies.
-
-▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
-
-TARGET #2: "SIR BRONCO"
-SPECIES: Vargr
-DESCRIPTION: Male, 50s, military bearing, distinctive formal speech patterns
-KNOWN SKILLS: Combat specialist, tactical leadership, heavy weapons proficiency
-THREAT LEVEL: EXTREME
-CAUTION: Former military, likely special forces. Highly dangerous in direct confrontation.
-LAST KNOWN LOCATION: Eternium Starport, Brendis-7
-NOTES: Target attempts to present as noble or chivalrous but is ruthlessly effective in combat. Will attempt to protect other crew members at personal risk. Recommend engagement only with overwhelming force or when isolated from group.
-
-▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
-
-TARGET #3: "EZRA"
-SPECIES: HUMAN
-DESCRIPTION: Male, mid-30s, lean build, observant demeanor, unusual sensory awareness
-KNOWN SKILLS: Infiltration, perception, possible psionic abilities
-THREAT LEVEL: HIGH
-CAUTION: Demonstrates uncanny awareness of surroundings and hidden threats
-LAST KNOWN LOCATION: Eternium Starport, Brendis-7
-NOTES: Target appears to sense danger before it manifests. Surveillance operations against this subject frequently fail under unexplained circumstances. Approach with extreme caution and consider psionic dampening measures if available.
-
-▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
-
-TARGET #4: "AGATHON"
-SPECIES: HUMAN
-DESCRIPTION: Male, approx. 50, tall and wiry, known-celebrity of noble birth, calm under pressure
-KNOWN SKILLS: Skilled in bladed combat, agile (ex-Promenade player,) Smooth talker
-THREAT LEVEL: MODERATE
-CAUTION: Appears non-threatening but remains poised and knows how to outmaneuver opponents
-LAST KNOWN LOCATION: Eternium Starport, Brendis-7
-NOTES: Target appears to be the defacto captain of the Vanagandr crew.
-
-▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
-
-ADDITIONAL INFORMATION:
+THREAT ASSESSMENT: EXTREME CAUTION ADVISED`,
+    audioFile: null,
+    showImage: true,
+    autoPlayAudio: false,
+    ambientType: 'secure',
+    targetImages: {
+      "KNUCK": "/images/wanted/knuck.jpg",
+      "SIR BRONCO": "/images/wanted/bronco.jpg", 
+      "EZRA": "/images/wanted/ezra.jpg",
+      "AGATHON": "/images/wanted/agathon.jpg"
+    },
+    targetData: {
+      "KNUCK": {
+        species: "HUMAN",
+        description: "Male, approximate age 35-40, muscular build, extensive technical expertise",
+        skills: "Electronics specialist, security systems expert, exceptional hacking abilities",
+        threat: "HIGH",
+        caution: "Extremely resourceful with improvised weapons and security countermeasures",
+        location: "Eternium Starport, Brendis-7",
+        notes: "Target demonstrates tactical thinking and will prioritize electronic warfare. Approaches from multiple angles and understands surveillance technologies."
+      },
+      "SIR BRONCO": {
+        species: "Vargr",
+        description: "Male, 50s, military bearing, distinctive formal speech patterns",
+        skills: "Combat specialist, tactical leadership, heavy weapons proficiency",
+        threat: "EXTREME",
+        caution: "Former military, likely special forces. Highly dangerous in direct confrontation",
+        location: "Eternium Starport, Brendis-7",
+        notes: "Target attempts to present as noble or chivalrous but is ruthlessly effective in combat. Will attempt to protect other crew members at personal risk. Recommend engagement only with overwhelming force or when isolated from group."
+      },
+      "EZRA": {
+        species: "HUMAN",
+        description: "Male, mid-30s, lean build, observant demeanor, unusual sensory awareness",
+        skills: "Infiltration, perception, possible psionic abilities",
+        threat: "HIGH",
+        caution: "Demonstrates uncanny awareness of surroundings and hidden threats",
+        location: "Eternium Starport, Brendis-7",
+        notes: "Target appears to sense danger before it manifests. Surveillance operations against this subject frequently fail under unexplained circumstances. Approach with extreme caution and consider psionic dampening measures if available."
+      },
+      "AGATHON": {
+        species: "HUMAN",
+        description: "Male, approx. 50, tall and wiry, known-celebrity of noble birth, calm under pressure",
+        skills: "Skilled in bladed combat, agile (ex-Promenade player), smooth talker",
+        threat: "MODERATE",
+        caution: "Appears non-threatening but remains poised and knows how to outmaneuver opponents",
+        location: "Eternium Starport, Brendis-7",
+        notes: "Target appears to be the defacto captain of the Vanagandr crew."
+      }
+    },
+    additionalInfo: `ADDITIONAL INFORMATION:
 - Targets travel as a semi-coordinated unit with complementary skills
 - All subjects survived Neon incident (details classified)
-- Likely the have developed resistance to memory modification procedures
+- Likely have developed resistance to memory modification procedures
 - Unknown if they have any connection to Eclipse Shard
 - Potentially aware of Blacksite ES1 location
 
@@ -237,21 +236,9 @@ WARNING: These targets have repeatedly escaped situations with extremely low sur
 
 POSTING VERIFICATION: X-77291-ALPHA
 AUTHORIZED BY: [REDACTED]
-CONTACT: Secure transmission protocols only. Use encryption key SIGMA-VOID-ECHO-9.
-
-▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀`,
-    audioFile: null,
-    showImage: true,
-    autoPlayAudio: false,
-    ambientType: 'secure',
-    targetImages: {
-      "KNUCK": "/images/wanted/knuck.jpg",
-      "SIR BRONCO": "/images/wanted/bronco.jpg", 
-      "EZRA": "/images/wanted/ezra.jpg",
-      "AGATHON": "/images/wanted/agathon.jpg"
-    }
+CONTACT: Secure transmission protocols only. Use encryption key SIGMA-VOID-ECHO-9.`
   }
-};
+}
 
 export default function HiddenPage() {
     const { pageId } = useParams();
@@ -282,284 +269,307 @@ export default function HiddenPage() {
     useEffect(() => {
       AudioManager.preloadSounds();
       
-// Play ambient sound based on page type
-     const ambientType = pageData.ambientType || 'normal';
-     AudioManager.playAmbient(ambientType, 0.2);
-     
-     return () => {
-       AudioManager.stopAmbient();
-     };
-   }, [pageData.ambientType]);
- 
-   // Function to handle audio playback
-   const playAudio = () => {
-     if (audioRef.current && pageData.autoPlayAudio) {
-       audioRef.current.volume = 0.5;
-       audioRef.current.play().catch(error => {
-         console.log("Audio autoplay prevented by browser:", error);
-       });
-     }
-   };
- 
-   // Function to complete typing immediately
-   const completeTyping = () => {
-     if (isTyping) {
-       typingRef.current.active = false;
-       setIsTyping(false);
-       
-       if (!initComplete) {
-         setInitText(prev => {
-           const currentText = prev;
-           const welcomeMessage = `\nSECURE ACCESS GRANTED\nRETRIEVING DATA FILE: ${pageData.title}\n\n`;
-           return currentText + welcomeMessage;
-         });
-         setInitComplete(true);
-         
-         setDisplayedText(pageData.content);
-         setTextComplete(true);
-         
-         playAudio();
-       } else {
-         setDisplayedText(pageData.content);
-         setTextComplete(true);
-       }
-     }
-   };
- 
-   // Custom typeText that can be interrupted
-   const customTypeText = (text, setState, callback = null, index = 0, delay = 30) => {
-     setIsTyping(true);
-     typingRef.current.active = true;
-     
-     if (index < text.length && typingRef.current.active) {
-       setState(prev => prev + text[index]);
-       // Play typing sound occasionally
-       if (soundEnabled && Math.random() > 0.95) {
-         AudioManager.playEffect('keypress', 0.05);
-       }
-       setTimeout(() => customTypeText(text, setState, callback, index + 1, delay), delay);
-     } else {
-       if (typingRef.current.active && callback) callback();
-       setIsTyping(false);
-       typingRef.current.active = false;
-     }
-   };
- 
-   // Event listener for ESC key and mobile touch
-   useEffect(() => {
-     const handleKeyDown = (e) => {
-       if (e.key === "Escape") {
-         setEscPressed(prev => {
-           if (prev === 0 && isTyping) {
-             completeTyping();
-             return 1;
-           } 
-           else if (prev >= 1 || !isTyping) {
-             AudioManager.playEffect('keypress', 0.2);
-             navigate("/");
-             return 0;
-           }
-           return prev;
-         });
-       }
-     };
-     
-     window.addEventListener("keydown", handleKeyDown);
-     return () => {
-       window.removeEventListener("keydown", handleKeyDown);
-     };
-   }, [isTyping, navigate]);
- 
-   // Auto scroll function
-   useEffect(() => {
-     if (terminalRef.current) {
-       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
-     }
-   }, [displayedText, textComplete, initText]);
- 
-   // Main initialization logic
-   useEffect(() => {
-     if (hasInitialized.current) return;
-     hasInitialized.current = true;
- 
-     // Play access sound
-     AudioManager.playEffect('access_granted', 0.3);
-     
-     const loadingMessages = [
-       "Establishing secure connection...",
-       "Decrypting data stream...",
-       "Authenticating access credentials...",
-       "Security protocols bypassed."
-     ];
-     
-     let i = 0;
-     const displayNextMessage = () => {
-       if (i < loadingMessages.length && typingRef.current.active) {
-         customTypeText(loadingMessages[i] + "\n", setInitText, () => {
-           setInitText(prev => prev + "\n");
-           i++;
-           displayNextMessage();
-         }, 0, 50);
-       } else if (typingRef.current.active) {
-         const welcomeMessage = 
-           `\nSECURE ACCESS GRANTED\n` +
-           `RETRIEVING DATA FILE: ${pageData.title}\n\n`;
-         customTypeText(welcomeMessage, setInitText, () => {
-           setInitComplete(true);
-           // Play corruption sound for certain pages
-           if (pageId === 'eclipseshard' || pageId === 'blacksite') {
-             AudioManager.playEffect('corruption', 0.2);
-           }
-           customTypeText(pageData.content, setDisplayedText, () => {
-             setTextComplete(true);
-             playAudio();
-           });
-         }, 0, 50);
-       }
-     };
-     
-     typingRef.current.active = true;
-     displayNextMessage();
-     
-     return () => {
-       typingRef.current.active = false;
-       if (audioRef.current) {
-         audioRef.current.pause();
-         audioRef.current.currentTime = 0;
-       }
-     };
-   }, [pageId, pageData.title, pageData.content, pageData.autoPlayAudio, soundEnabled]);
- 
-   // Rendering for wanted board with images
-   const renderWantedBoard = () => {
-     if (!pageData.showImage || !pageData.targetImages) return null;
-     
-     return (
-       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-         {Object.entries(pageData.targetImages).map(([name, imagePath]) => (
-           <div key={name} className="border border-green-400 p-2">
-             <div className="text-green-400 font-mono text-center mb-2 text-sm sm:text-base">{name}</div>
-             <div className="flex justify-center">
-               <img 
-                 src={imagePath} 
-                 alt={`Wanted: ${name}`} 
-                 className="w-full h-auto max-h-32 sm:max-h-48 object-cover border border-green-400" 
-                 onError={(e) => {
-                   e.target.onerror = null;
-                   e.target.src = "/images/wanted/placeholder.jpg";
-                 }}
-               />
-             </div>
-           </div>
-         ))}
-       </div>
-     );
-   };
- 
-   return (
-     <div className="flex flex-col items-center min-h-screen bg-black p-4">
-       {/* Sound Toggle Button */}
-       <div className="fixed top-4 left-4 z-50">
-         <Button
-           className="bg-green-400 text-black font-mono px-2 py-1 rounded text-xs hover:bg-green-500"
-           onClick={() => {
-             const isMuted = AudioManager.toggleMute();
-             setSoundEnabled(!isMuted);
-           }}
-         >
-           {soundEnabled ? '🔊' : '🔇'}
-         </Button>
-       </div>
-       
-       {/* Hidden audio element that can autoplay */}
-       {pageData.audioFile && (
-         <audio
-           ref={audioRef}
-           src={pageData.audioFile}
-           loop={false}
-           style={{ display: "none" }}
-         />
-       )}
-       
-       <Card className="w-full max-w-md lg:max-w-lg border-green-400 border-2">
-         <CardContent className="p-4 sm:p-6">
-           <div
-             style={{
-               fontFamily: "monospace",
-               color: "#33ff33",
-               whiteSpace: "pre-wrap",
-               marginBottom: "10px",
-               textAlign: "left",
-               fontSize: "12px",
-               sm: { fontSize: "14px" }
-             }}
-           >
-             {initText}
-             {isTyping && !initComplete && <span className="blinking-cursor">▌</span>}
-           </div>
-           <div 
-             className="terminal overflow-auto terminal-flicker" 
-             ref={terminalRef}
-             style={{ 
-               minHeight: "200px",
-               maxHeight: "60vh",
-               fontSize: "12px",
-               sm: { fontSize: "14px" }
-             }}
-           >
-             <div style={{ whiteSpace: "pre-wrap" }}>
-               {displayedText}
-               {isTyping && initComplete && <span className="blinking-cursor">▌</span>}
-             </div>
-             
-             {/* Render wanted board INSIDE the scrollable terminal */}
-             {textComplete && pageData.showImage && renderWantedBoard()}
-             
-             {/* Visible audio controls (only shown when not auto-playing) */}
-             {pageData.audioFile && textComplete && !pageData.autoPlayAudio && (
-               <audio
-                 controls
-                 style={{
-                   backgroundColor: "black",
-                   border: "1px solid #33ff33",
-                   borderRadius: "5px",
-                   width: "100%",
-                   marginTop: "10px",
-                   color: "#33ff33"
-                 }}
-               >
-                 <source src={pageData.audioFile} type="audio/mp3" />
-                 Your browser does not support the audio element.
-               </audio>
-             )}
-           </div>
-           <div className="mt-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-             <Button 
-               onClick={() => {
-                 AudioManager.playEffect('keypress', 0.2);
-                 navigate("/");
-               }}
-               className="w-full sm:w-auto text-xs sm:text-sm"
-             >
-               RETURN TO MAIN TERMINAL
-             </Button>
-             {/* Mobile-friendly touch prompt */}
-             <div className="text-green-400 text-xs text-center sm:text-right">
-               {isTyping ? (
-                 <>
-                   <span className="hidden sm:inline">Press ESC to skip typing</span>
-                   <span className="sm:hidden" onClick={completeTyping}>Tap here to skip typing</span>
-                 </>
-               ) : (
-                 <>
-                   <span className="hidden sm:inline">Press ESC to return</span>
-                   <span className="sm:hidden">Tap button to return</span>
-                 </>
-               )}
-             </div>
-           </div>
-         </CardContent>
-       </Card>
-     </div>
-   );
- }
+      // Play ambient sound based on page type
+      const ambientType = pageData.ambientType || 'normal';
+      AudioManager.playAmbient(ambientType, 0.2);
+      
+      return () => {
+        AudioManager.stopAmbient();
+      };
+    }, [pageData.ambientType]);
+  
+    // Function to handle audio playback
+    const playAudio = () => {
+      if (audioRef.current && pageData.autoPlayAudio) {
+        audioRef.current.volume = 0.5;
+        audioRef.current.play().catch(error => {
+          console.log("Audio autoplay prevented by browser:", error);
+        });
+      }
+    };
+  
+    // Function to complete typing immediately
+    const completeTyping = () => {
+      if (isTyping) {
+        typingRef.current.active = false;
+        setIsTyping(false);
+        
+        if (!initComplete) {
+          setInitText(prev => {
+            const currentText = prev;
+            const welcomeMessage = `\nSECURE ACCESS GRANTED\nRETRIEVING DATA FILE: ${pageData.title}\n\n`;
+            return currentText + welcomeMessage;
+          });
+          setInitComplete(true);
+          
+          setDisplayedText(pageData.content);
+          setTextComplete(true);
+          
+          playAudio();
+        } else {
+          setDisplayedText(pageData.content);
+          setTextComplete(true);
+        }
+      }
+    };
+  
+    // Custom typeText that can be interrupted
+    const customTypeText = (text, setState, callback = null, index = 0, delay = 30) => {
+      setIsTyping(true);
+      typingRef.current.active = true;
+      
+      if (index < text.length && typingRef.current.active) {
+        setState(prev => prev + text[index]);
+        // Play typing sound occasionally
+        if (soundEnabled && Math.random() > 0.95) {
+          AudioManager.playEffect('keypress', 0.05);
+        }
+        setTimeout(() => customTypeText(text, setState, callback, index + 1, delay), delay);
+      } else {
+        if (typingRef.current.active && callback) callback();
+        setIsTyping(false);
+        typingRef.current.active = false;
+      }
+    };
+  
+    // Event listener for ESC key and mobile touch
+    useEffect(() => {
+      const handleKeyDown = (e) => {
+        if (e.key === "Escape") {
+          setEscPressed(prev => {
+            if (prev === 0 && isTyping) {
+              completeTyping();
+              return 1;
+            } 
+            else if (prev >= 1 || !isTyping) {
+              AudioManager.playEffect('keypress', 0.2);
+              navigate("/");
+              return 0;
+            }
+            return prev;
+          });
+        }
+      };
+      
+      window.addEventListener("keydown", handleKeyDown);
+      return () => {
+        window.removeEventListener("keydown", handleKeyDown);
+      };
+    }, [isTyping, navigate]);
+  
+    // Auto scroll function
+    useEffect(() => {
+      if (terminalRef.current) {
+        terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+      }
+    }, [displayedText, textComplete, initText]);
+  
+    // Main initialization logic
+    useEffect(() => {
+      if (hasInitialized.current) return;
+      hasInitialized.current = true;
+  
+      // Play access sound
+      AudioManager.playEffect('access_granted', 0.3);
+      
+      const loadingMessages = [
+        "Establishing secure connection...",
+        "Decrypting data stream...",
+        "Authenticating access credentials...",
+        "Security protocols bypassed."
+      ];
+      
+      let i = 0;
+      const displayNextMessage = () => {
+        if (i < loadingMessages.length && typingRef.current.active) {
+          customTypeText(loadingMessages[i] + "\n", setInitText, () => {
+            setInitText(prev => prev + "\n");
+            i++;
+            displayNextMessage();
+          }, 0, 50);
+        } else if (typingRef.current.active) {
+          const welcomeMessage = 
+            `\nSECURE ACCESS GRANTED\n` +
+            `RETRIEVING DATA FILE: ${pageData.title}\n\n`;
+          customTypeText(welcomeMessage, setInitText, () => {
+            setInitComplete(true);
+            // Play corruption sound for certain pages
+            if (pageId === 'eclipseshard' || pageId === 'blacksite') {
+              AudioManager.playEffect('corruption', 0.2);
+            }
+            customTypeText(pageData.content, setDisplayedText, () => {
+              setTextComplete(true);
+              playAudio();
+            });
+          }, 0, 50);
+        }
+      };
+      
+      typingRef.current.active = true;
+      displayNextMessage();
+      
+      return () => {
+        typingRef.current.active = false;
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0;
+        }
+      };
+    }, [pageId, pageData.title, pageData.content, pageData.autoPlayAudio, soundEnabled]);
+  
+       // Rendering for wanted board with images - IMPROVED FOR MOBILE
+    const renderWantedBoard = () => {
+      if (!pageData.showImage || !pageData.targetImages) return null;
+      
+      return (
+        <div className="mt-4">
+          <div className="pt-4">
+            <div className="space-y-4">
+              {Object.entries(pageData.targetImages).map(([name, imagePath]) => {
+                const targetInfo = pageData.targetData && pageData.targetData[name];
+                
+                return (
+                  <div key={name} className="border border-green-400 p-2">
+                    <div className="text-green-400 font-mono text-xs mb-2">
+                      TARGET #{Object.keys(pageData.targetImages).indexOf(name) + 1}: "{name}"
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <div className="w-full sm:w-1/3">
+                        <img 
+                          src={imagePath} 
+                          alt={`Wanted: ${name}`} 
+                          className="w-full h-32 sm:h-40 object-cover border border-green-400" 
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "/images/wanted/placeholder.jpg";
+                          }}
+                        />
+                      </div>
+                      <div className="w-full sm:w-2/3 text-green-400 font-mono text-xs space-y-1">
+                        {targetInfo && (
+                          <>
+                            <div><span className="text-green-300">SPECIES:</span> {targetInfo.species}</div>
+                            <div><span className="text-green-300">DESCRIPTION:</span> {targetInfo.description}</div>
+                            <div><span className="text-green-300">KNOWN SKILLS:</span> {targetInfo.skills}</div>
+                            <div><span className="text-green-300">THREAT LEVEL:</span> <span className={targetInfo.threat === 'EXTREME' ? 'text-red-400' : 'text-yellow-400'}>{targetInfo.threat}</span></div>
+                            <div><span className="text-green-300">CAUTION:</span> {targetInfo.caution}</div>
+                            <div><span className="text-green-300">LAST KNOWN:</span> {targetInfo.location}</div>
+                            <div><span className="text-green-300">NOTES:</span> {targetInfo.notes}</div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Additional Information Section */}
+            {pageData.additionalInfo && (
+              <div className="mt-6 border border-green-400 p-3 text-green-400 font-mono text-xs">
+                <pre className="whitespace-pre-wrap">{pageData.additionalInfo}</pre>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
+  
+    return (
+      <div className="flex flex-col items-center min-h-screen bg-black p-2 sm:p-4">
+        {/* Sound Toggle Button */}
+        <div className="fixed top-2 left-2 z-50">
+          <Button
+            className="bg-green-400 text-black font-mono px-2 py-1 rounded text-xs hover:bg-green-500"
+            onClick={() => {
+              const isMuted = AudioManager.toggleMute();
+              setSoundEnabled(!isMuted);
+            }}
+          >
+            {soundEnabled ? '🔊' : '🔇'}
+          </Button>
+        </div>
+        
+        {/* Hidden audio element that can autoplay */}
+        {pageData.audioFile && (
+          <audio
+            ref={audioRef}
+            src={pageData.audioFile}
+            loop={false}
+            style={{ display: "none" }}
+          />
+        )}
+        
+        <div className="w-full max-w-lg flex flex-col" style={{ maxHeight: '100vh' }}>
+          <Card className="border-green-400 border-2 flex-1 flex flex-col">
+            <CardContent className="p-3 sm:p-4 flex flex-col h-full">
+              {/* Combined terminal content - all inside the card */}
+              <div 
+                className="terminal overflow-y-auto flex-1 terminal-flicker" 
+                ref={terminalRef}
+                style={{ 
+                  fontSize: "11px",
+                  minHeight: "200px"
+                }}
+              >
+                {/* Init text now inside the terminal */}
+                {initText && (
+                  <div className="text-green-400 font-mono whitespace-pre-wrap mb-2">
+                    {initText}
+                    {isTyping && !initComplete && <span className="blinking-cursor">▌</span>}
+                  </div>
+                )}
+                
+                <div style={{ whiteSpace: "pre-wrap" }}>
+                  {displayedText}
+                  {isTyping && initComplete && <span className="blinking-cursor">▌</span>}
+                </div>
+                
+                {/* Render wanted board with better mobile layout */}
+                {textComplete && pageData.showImage && renderWantedBoard()}
+                
+                {/* Visible audio controls (only shown when not auto-playing) */}
+                {pageData.audioFile && textComplete && !pageData.autoPlayAudio && (
+                  <audio
+                    controls
+                    className="w-full mt-4"
+                    style={{
+                      backgroundColor: "black",
+                      border: "1px solid #33ff33",
+                      borderRadius: "5px"
+                    }}
+                  >
+                    <source src={pageData.audioFile} type="audio/mp3" />
+                    Your browser does not support the audio element.
+                  </audio>
+                )}
+              </div>
+              
+              {/* Button section */}
+              <div className="mt-3 flex flex-col sm:flex-row justify-between items-center gap-2">
+                <Button 
+                  onClick={() => {
+                    AudioManager.playEffect('keypress', 0.2);
+                    navigate("/");
+                  }}
+                  className="w-full sm:w-auto text-xs"
+                >
+                  RETURN TO MAIN TERMINAL
+                </Button>
+                {/* Mobile-friendly touch prompt */}
+                <div className="text-green-400 text-xs text-center sm:text-right">
+                  {isTyping ? (
+                    <span onClick={completeTyping} className="cursor-pointer">
+                      Tap to skip typing
+                    </span>
+                  ) : (
+                    <span>Tap button to return</span>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
+  };
